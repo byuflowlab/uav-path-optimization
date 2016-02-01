@@ -1,6 +1,7 @@
 clear; clc; close all;
 tic
-rng(9); %50,4,3
+rng(2); %50,3.75,3 - works for num_path = 3;
+%rng(9); %50,4,3 - num_path comparison
 %rng(4); %44,4,3
 %rng(3); %50,4,3
 %rng(2); %52,3.5,3 -easy start, difficult middle portion
@@ -53,14 +54,14 @@ initial = 1;
 Optimized_Finish = 1;
 Dynamic_Obstacles = 0;
 compare_num_path = 1;
-num_path = 6;              %Receding Horizon Approach (any number really, but 3 is standard)
+num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
 ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
 uav_finite_size = 1;       %input whether want to include UAV size
 optimize_energy_use = 0;    %changes which objective function is used
 optimize_time = 1;          %if both are zero, then distance is optimized
 l = 0;
 final_plot = 1;
-Show_Steps = 1;            %needs to be turned on when Dynamic_Obstacles is turned on
+Show_Steps = 0;            %needs to be turned on when Dynamic_Obstacles is turned on
 create_movie = 0;
 save_path = 1;           %save path data to use in compare
 remove_infeasible_sol = 1;
@@ -102,7 +103,7 @@ step_min = min_speed/2;
 n_obs = 50; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
-obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
+obs_rad = (3.75-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
 %-------------------------------------------%
 
 %------dynamic obstacle information---------%
@@ -125,6 +126,8 @@ A = [];
 b = [];
 Aeq = [];
 beq = [];
+%lb = -10*ones(2*num_path,2);
+%ub = 110*ones(2*num_path,2);
 lb = [];
 ub = [];
 
