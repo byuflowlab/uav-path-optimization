@@ -4,10 +4,11 @@ tic
 %rng(9); %50,4,3 - num_path comparison
 %rng(4); %44,4,3
 %rng(3); %50,4,3
-rng(2); %52,3.5,3 -easy start, difficult middle portion
+%rng(2); %52,3.5,3 -easy start, difficult middle portion
 %rng(22); %50/5/3 - difficult start, straight forward finish; for delta_t=0.2, fails if you don't remove bad solutions
 %rng(51); %3.5,3,50 - optimized finish comparison
 %rng(59); %3,3, 55   - use for comparison of three objective functions
+%rng(59); %4,3,54
 %rng(18);  %4,3,54
 %rng(60); %3.5, 3, 40 or 4/3/50
 %rng(6); %50,4,3 - use for comparison of removing unconverged solutions
@@ -25,9 +26,22 @@ rng(2); %52,3.5,3 -easy start, difficult middle portion
 %first static obstacle avoidance (show steps)
 %rng(2); %52,3.5,3,delta_t=0.1,ms=3,num_path=3
 
-%dynamic obstacle avoidance comparison
-%rng(2),3,3.5,1; dyn_case = 5; delta_t = 0.1
+%additional static obstacle avoidance (don't show steps)
+%rng(6); %50,4,3 - static2
+%rng(18);  %4,3,54 - static3
+rng(59); %54/4/3 - static4, all of these are optimize_time
 
+%dynamic obstacle avoidance
+%rng(2); %3,3.5,1; dyn_case = 1; optimize time
+
+%dynamic obstacle avoidance comparison
+%rng(2); %3,3.5,1; dyn_case = 5; delta_t = 0.1
+
+%Methodology
+%rng(2); %50/4/3
+
+%multi start approach
+%rng(7); %50/4/3; figure(4), ms_i = 1
 
 %------------------------------%
 % Bryce Ingersoll
@@ -62,7 +76,7 @@ initial = 1;
 
 %------------Algorithm Options------------%
 Optimized_Finish = 1;
-Dynamic_Obstacles = 1;
+Dynamic_Obstacles = 0;
 compare_num_path = 0;
 num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
 ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
@@ -71,7 +85,7 @@ optimize_energy_use = 0;    %changes which objective function is used
 optimize_time = 1;          %if both are zero, then distance is optimized
 l = 0;
 final_plot = 1;
-Show_Steps = 1;            %needs to be turned on when Dynamic_Obstacles is turned on
+Show_Steps = 0;            %needs to be turned on when Dynamic_Obstacles is turned on
 create_movie = 0;
 save_path = 1;           %save path data to use in compare
 remove_infeasible_sol = 1;
@@ -110,10 +124,10 @@ step_max = max_speed/2;
 step_min = min_speed/2;
 
 %-------static obstacle information--------%
-n_obs = 1; %number of static obstacles
+n_obs = 54; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
-obs_rad = (3.5-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
+obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
 %-------------------------------------------%
 
 %------dynamic obstacle information---------%
