@@ -43,6 +43,13 @@ elseif case_num == 6 % multiple obstacles coming acros face of UAV, same directi
    size = [7;7;7];
    vel = [-3.25,3.25; -3.25,3.25;  -3.25,3.25];
    
+elseif case_num == 7
+    
+    num = 1;
+    pos = [34,93];
+    size =  6;
+    vel = [4.5,-7];
+   
 end
 
 

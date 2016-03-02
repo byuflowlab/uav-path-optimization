@@ -7,8 +7,8 @@
 %-------------------------------------------%
 close all;
 %import data
-path_e = -importdata('path_e.txt');
-start_e = -importdata('start_e.txt');
+path_e = importdata('path_e.txt');
+start_e = importdata('start_e.txt');
 path_t = importdata('path_t.txt');
 start_t = importdata('start_t.txt');
 path_d = importdata('path_d.txt');

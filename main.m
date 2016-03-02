@@ -29,7 +29,7 @@ tic
 %additional static obstacle avoidance (don't show steps)
 %rng(6); %50,4,3 - static2
 %rng(18);  %4,3,54 - static3
-rng(59); %54/4/3 - static4, all of these are optimize_time
+%rng(59); %54/4/3 - static4, all of these are optimize_time
 
 %dynamic obstacle avoidance
 %rng(2); %3,3.5,1; dyn_case = 1; optimize time
@@ -37,11 +37,20 @@ rng(59); %54/4/3 - static4, all of these are optimize_time
 %dynamic obstacle avoidance comparison
 %rng(2); %3,3.5,1; dyn_case = 5; delta_t = 0.1
 
+%---------paper results----------%
+
+%SDOA
+%rng(2); %44/4/3, dyn_case = 7
+
 %Methodology
 %rng(2); %50/4/3
 
 %multi start approach
 %rng(7); %50/4/3; figure(4), ms_i = 1
+
+% EU vs. Time
+%rng(60); %50/4/3 % 1
+rng(59); %54/4/3 % 2
 
 %------------------------------%
 % Bryce Ingersoll
@@ -73,7 +82,7 @@ global uav_finite_size;
 initial = 1;
 
 %Plane parameters are found in optimize_fe function
-
+ 
 %------------Algorithm Options------------%
 Optimized_Finish = 1;
 Dynamic_Obstacles = 0;
@@ -85,7 +94,7 @@ optimize_energy_use = 0;    %changes which objective function is used
 optimize_time = 1;          %if both are zero, then distance is optimized
 l = 0;
 final_plot = 1;
-Show_Steps = 0;            %needs to be turned on when Dynamic_Obstacles is turned on
+Show_Steps = 1;            %needs to be turned on when Dynamic_Obstacles is turned on
 create_movie = 0;
 save_path = 1;           %save path data to use in compare
 remove_infeasible_sol = 1;
@@ -136,7 +145,7 @@ if Dynamic_Obstacles == 1
     global n_obsd obs_d_sp obs_d_v obs_d_s obs_d_cp;
     
     %choose 1-4 for cases (see function for description)
-    [n_obsd, obs_d_sp, obs_d_s, obs_d_v]  = dyn_case(5);
+    [n_obsd, obs_d_sp, obs_d_s, obs_d_v]  = dyn_case(7);
     
     obs_d_s = obs_d_s-ones(n_obsd,1)*uav_ws; %size of obstacles, also used (5)
     obs_d_cp = obs_d_sp; %current position of obstacles
