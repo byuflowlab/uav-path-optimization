@@ -2,7 +2,7 @@ clear; clc; close all;
 tic
 %rng(2); %50,3.75,3 - works for num_path = 3;
 %rng(9); %50,4,3 - num_path comparison
-%rng(4); %44,4,3
+%rng(4); %49,4,3
 %rng(3); %50,4,3
 %rng(2); %52,3.5,3 -easy start, difficult middle portion
 %rng(22); %50/5/3 - difficult start, straight forward finish; for delta_t=0.2, fails if you don't remove bad solutions
@@ -50,7 +50,7 @@ tic
 
 % EU vs. Time
 %rng(60); %50/4/3 % 1
-rng(59); %54/4/3 % 2
+%rng(59); %54/4/3 % 2
 
 %------------------------------%
 % Bryce Ingersoll
@@ -82,7 +82,7 @@ global uav_finite_size;
 initial = 1;
 
 %Plane parameters are found in optimize_fe function
- 
+
 %------------Algorithm Options------------%
 Optimized_Finish = 1;
 Dynamic_Obstacles = 0;
@@ -92,14 +92,42 @@ ms_i = 3;                  %number of guesses for multi start (up to 8 for now, 
 uav_finite_size = 1;       %input whether want to include UAV size
 optimize_energy_use = 0;    %changes which objective function is used
 optimize_time = 1;          %if both are zero, then distance is optimized
-l = 0;
 final_plot = 1;
-Show_Steps = 1;            %needs to be turned on when Dynamic_Obstacles is turned on
+Show_Steps = 0;            %needs to be turned on when Dynamic_Obstacles is turned on
 create_movie = 0;
-save_path = 1;           %save path data to use in compare
+save_path = 0;           %save path data to use in compare
 remove_infeasible_sol = 1;
+
 %----------------------------------------%
 
+%-------------- one_path -----------------%
+%plan entire path
+% to run this, first need to run using 3-4 num_path, save that path, and
+% use that as your initial guess; also need to change number of num_path to
+% match what was previously solved for
+one_path = 1; %need to make sure num_path is sufficiently high; if this is on, need to set ms_i = 1
+
+%
+rng(8); %54/4/3
+if one_path == 1
+    num_path = 16;
+    ms_i = 1;
+    get_bez_points = @rng8;
+end
+%}
+
+
+%{
+rng(59); %4,3,54
+if one_path == 1
+    num_path = 16;
+    ms_i = 1;
+    get_bez_points = @rng59;
+end
+%}
+
+
+l = 0;
 
 %parameterization vector t
 global delta_t;
@@ -126,6 +154,7 @@ end
 %starting/ending position of plane
 x0 = [0,0];
 xf = [100,100];
+Bez_points = [];
 %--------------------------------------------------%
 
 %transalte UAV information to fit with algorithm
@@ -186,8 +215,12 @@ x_new = zeros(2*num_path,2);
 % note: each iteration of while loop represents some time step, in which
 % UAV travels on path and dynamic obstacles move
 
-while ( abs(x_new(2*num_path,1)-xf (1)) > 10^0 ) && ( abs(x_new(2*num_path,2)-xf (2)) > 10^0 )
+
+while ( abs(x_new(2*num_path,1)-xf(1)) > 10^0 ) && ( abs(x_new(2*num_path,2)-xf(2)) > 10^0 )
     
+    if one_path == 1
+        break;
+    end
     %record number of paths
     l = l + 1;
     
@@ -414,13 +447,20 @@ while ( abs(x_new(2*num_path,1)-xf (1)) > 10^0 ) && ( abs(x_new(2*num_path,2)-xf
     %print current location
     x_next(2,:)
     
+    Bez_points = [Bez_points; x_next(1:2,:)];
     
-    
-end
+end %while
+
 
 %-------------------------final optimization------------------%
 %final guess
-x_guess_final = multi_start(ms_i);
+if one_path == 1
+    x_guess_final = get_bez_points();
+else
+    x_guess_final = multi_start(ms_i);
+end
+
+
 
 for i = 1 : ms_i %multistart approach to find best solution
     
@@ -536,7 +576,7 @@ if create_movie == 1
 end
 
 %--- Evaluate Solution ---%
-%A_total_distance = evaluate_solution(Path_bez);
+A_total_distance = evaluate_solution(Path_bez);
 
 %compare paths created using various number of look ahead paths
 if compare_num_path == 1
@@ -580,5 +620,9 @@ if save_path == 1
 end
 
 
+%save guess to start one_path
+if one_path == 0
+    Bez_points = [Bez_points; x_fin];
+end
 
 toc
