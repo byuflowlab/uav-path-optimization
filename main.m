@@ -1,24 +1,25 @@
 clear; clc; close all;
 tic
+rng(1); %54/4/3 -pretty easy; 50/4/3 - more interesting
+%rng(1); %40, 3.5/3; 50,0 and 2,7 - goes below obstacles
+%rng(1); %49/4/3 %similar 3 comparison (2)
 %rng(2); %50,3.75,3 - works for num_path = 3;
-%rng(9); %50,4,3 - num_path comparison
-%rng(4); %49,4,3
-%rng(3); %50,4,3
 %rng(2); %52,3.5,3 -easy start, difficult middle portion
+%rng(3); %50,4,3
+%rng(4); %49,4,3
+%rng(5); %40, 3/3; 50,0 and 2,6.5 - goes above
+%rng(5); %49/4/3 - similar 3 comparison (1)
+%rng(6); %50,4,3 - use for comparison of removing unconverged solutions
+%rng(7); %50,4,3 %use this for opt_d, delta_t = 0.1, for num_path comparison
+%rng(8); %54, 4, 3 %good example for ms=1 fails ms=3 succeeds
+%rng(9); %50,4,3 - num_path comparison
+%rng(11); %55,4,3 - used for the three comparison
+%rng(18);  %4,3,54
 %rng(22); %50/5/3 - difficult start, straight forward finish; for delta_t=0.2, fails if you don't remove bad solutions
 %rng(51); %3.5,3,50 - optimized finish comparison
 %rng(59); %3,3, 55   - use for comparison of three objective functions
 %rng(59); %4,3,54
-%rng(18);  %4,3,54
 %rng(60); %3.5, 3, 40 or 4/3/50
-%rng(6); %50,4,3 - use for comparison of removing unconverged solutions
-%rng(1); %40, 3.5/3; 50,0 and 2,7 - goes below obstacles
-%rng(1); %49/4/3 %similar 3 comparison (2)
-%rng(5); %40, 3/3; 50,0 and 2,6.5 - goes above
-%rng(5); %49/4/3 - similar 3 comparison (1)
-%rng(11); %55,4,3 - used for the three comparison
-%rng(8); %54, 4, 3 %good example for ms=1 fails ms=3 succeeds
-%rng(7); %50,4,3 %use this for opt_d, delta_t = 0.1, for num_path comparison
 %rng(101); %50/54,4,3 -difficult start, works for delta_t = 0.1
 
 %-------ucur results-----------%
@@ -91,7 +92,7 @@ num_path = 3;              %Receding Horizon Approach (any number really, but 3 
 ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
 uav_finite_size = 1;       %input whether want to include UAV size
 optimize_energy_use = 0;    %changes which objective function is used
-optimize_time = 1;          %if both are zero, then distance is optimized
+optimize_time = 0;          %if both are zero, then pathlength is optimized
 final_plot = 1;
 Show_Steps = 0;            %needs to be turned on when Dynamic_Obstacles is turned on
 create_movie = 0;
@@ -105,9 +106,9 @@ remove_infeasible_sol = 1;
 % to run this, first need to run using 3-4 num_path, save that path, and
 % use that as your initial guess; also need to change number of num_path to
 % match what was previously solved for
-one_path = 1; %need to make sure num_path is sufficiently high; if this is on, need to set ms_i = 1
+one_path = 0; %need to make sure num_path is sufficiently high; if this is on, need to set ms_i = 1
 
-%
+%{
 rng(8); %54/4/3
 if one_path == 1
     num_path = 16;
@@ -141,8 +142,9 @@ t = 0 : delta_t : 1;
 turn_r = 5; %turn radius
 
 %maximum/stall speed (m/s) ?
-max_speed = 20;
-min_speed = 5;
+max_speed = 15;
+min_speed = 10;
+
 
 %Wing span of UAV
 if uav_finite_size == 1
@@ -158,11 +160,11 @@ Bez_points = [];
 %--------------------------------------------------%
 
 %transalte UAV information to fit with algorithm
-step_max = max_speed/2;
-step_min = min_speed/2;
+step_max = max_speed; %/2;
+step_min = min_speed; %/2;
 
 %-------static obstacle information--------%
-n_obs = 54; %number of static obstacles
+n_obs = 50; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
 obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius

@@ -70,7 +70,11 @@ La = l_l;
 Ls = norm(xi(2*num_path,:)-x0);
 
 %calculate total cost, e
-e = D + alpha*(La-Ls);
+%e = D + alpha*(La-Ls);
+
+%new distance function is sum of distance to final destination (D) and
+%length of planned path (l_l)
+e = D + l_l;
 
 
 %gradients
