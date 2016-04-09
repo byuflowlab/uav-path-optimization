@@ -1,6 +1,6 @@
 clear; clc; close all;
 tic
-rng(1); %54/4/3 -pretty easy; 50/4/3 - more interesting
+%rng(1); %54/4/3 -pretty easy; 50/4/3 - more interesting
 %rng(1); %40, 3.5/3; 50,0 and 2,7 - goes below obstacles
 %rng(1); %49/4/3 %similar 3 comparison (2)
 %rng(2); %50,3.75,3 - works for num_path = 3;
@@ -53,6 +53,17 @@ rng(1); %54/4/3 -pretty easy; 50/4/3 - more interesting
 %rng(60); %50/4/3 % 1
 %rng(59); %54/4/3 % 2
 
+
+%rng(1); %50/4/3
+
+%planned vs. optimal paths
+%rng(4); %49/4/3
+
+%color change representing speed
+%rng(2); %50/3.75/3 - good one
+%rng(8); %4/3/54 - good for all three
+rng(1); %4/3/57
+
 %------------------------------%
 % Bryce Ingersoll
 %
@@ -89,27 +100,30 @@ Optimized_Finish = 1;
 Dynamic_Obstacles = 0;
 compare_num_path = 0;
 num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
-ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
+ms_i = 5;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
 uav_finite_size = 1;       %input whether want to include UAV size
-optimize_energy_use = 0;    %changes which objective function is used
-optimize_time = 0;          %if both are zero, then pathlength is optimized
+optimize_energy_use = 01;    %changes which objective function is used
+optimize_time = 0;          %if both are zero, then path length is optimized
 final_plot = 1;
 Show_Steps = 0;            %needs to be turned on when Dynamic_Obstacles is turned on
 create_movie = 0;
-save_path = 0;           %save path data to use in compare
+save_path = 1;           %save path data to use in compare
 remove_infeasible_sol = 1;
-
+speed_color = 1;         %use if you want color to represent speed
+d_speed_color = 1;       %use if you want color to be discretized over path length
 %----------------------------------------%
 
 %-------------- one_path -----------------%
+
 %plan entire path
 % to run this, first need to run using 3-4 num_path, save that path, and
 % use that as your initial guess; also need to change number of num_path to
 % match what was previously solved for
 one_path = 0; %need to make sure num_path is sufficiently high; if this is on, need to set ms_i = 1
 
+% minimize distance
 %{
-rng(8); %54/4/3
+%rng(8); %54/4/3
 if one_path == 1
     num_path = 16;
     ms_i = 1;
@@ -119,7 +133,7 @@ end
 
 
 %{
-rng(59); %4,3,54
+%rng(59); %4,3,54
 if one_path == 1
     num_path = 16;
     ms_i = 1;
@@ -127,6 +141,44 @@ if one_path == 1
 end
 %}
 
+%{
+%rng(4); %4,3,49
+if one_path == 1
+    num_path = 15;
+    ms_i = 1;
+    get_bez_points = @rng4_d;
+end
+%}
+
+%minimize time
+
+%{
+%rng(58); %4,3,54
+if one_path == 1
+    ms_i = 1;
+    get_bez_points = @rng58_t;
+    num_path = 14;
+end
+%}
+
+%{
+%rng(4); %4,3,49
+if one_path == 1
+    ms_i = 1;
+    get_bez_points = @rng4_t;
+    num_path = 9;
+end
+%}
+
+%minimize energy
+%{
+%rng(4); %4,3,49
+if one_path == 1
+    ms_i = 1;
+    get_bez_points = @rng4_e;
+    num_path = 12;
+end
+%}
 
 l = 0;
 
@@ -144,7 +196,13 @@ turn_r = 5; %turn radius
 %maximum/stall speed (m/s) ?
 max_speed = 15;
 min_speed = 10;
+if optimize_energy_use == 1
+    min_speed = 5;
+end
 
+%for dynamic obstacles = 5
+%max_speed = 10;
+%min_speed = 2.5;
 
 %Wing span of UAV
 if uav_finite_size == 1
@@ -164,10 +222,10 @@ step_max = max_speed; %/2;
 step_min = min_speed; %/2;
 
 %-------static obstacle information--------%
-n_obs = 50; %number of static obstacles
+n_obs = 57; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
-obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
+obs_rad = (4.0-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
 %-------------------------------------------%
 
 %------dynamic obstacle information---------%
@@ -176,7 +234,7 @@ if Dynamic_Obstacles == 1
     global n_obsd obs_d_sp obs_d_v obs_d_s obs_d_cp;
     
     %choose 1-4 for cases (see function for description)
-    [n_obsd, obs_d_sp, obs_d_s, obs_d_v]  = dyn_case(7);
+    [n_obsd, obs_d_sp, obs_d_s, obs_d_v]  = dyn_case(5);
     
     obs_d_s = obs_d_s-ones(n_obsd,1)*uav_ws; %size of obstacles, also used (5)
     obs_d_cp = obs_d_sp; %current position of obstacles
@@ -198,7 +256,7 @@ ub = [];
 %Pmed initialization, used to match up derivatives between paths
 Pmid = [-3,-3];
 
-Path_bez = [0,0];
+Path_bez = [];
 
 path_start = [];
 
@@ -223,6 +281,7 @@ while ( abs(x_new(2*num_path,1)-xf(1)) > 10^0 ) && ( abs(x_new(2*num_path,2)-xf(
     if one_path == 1
         break;
     end
+    
     %record number of paths
     l = l + 1;
     
@@ -290,6 +349,8 @@ while ( abs(x_new(2*num_path,1)-xf(1)) > 10^0 ) && ( abs(x_new(2*num_path,2)-xf(
     if abs(x_next(2*num_path,1)-xf (1)) < 10^-1  && abs(x_next(2*num_path,2)-xf (2)) < 10^-1 && Optimized_Finish == 1
         break
     end
+    
+    
     
     % makes the path of the UAV for this section
     for i = 1 : length(t)
@@ -462,13 +523,25 @@ else
     x_guess_final = multi_start(ms_i);
 end
 
+%one path optimization for energy use
+%if one_path == 1 && optimize_energy_use == 1
+if optimize_energy_use == 1
+    final_of = @final_eu;
+else
+    final_of = @final_dist;
+end
 
 
 for i = 1 : ms_i %multistart approach to find best solution
     
     options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',500000,'MaxIter',100000);
-    x_final(:,:,i) = fmincon(@final_dist, x_guess_final(:,:,i) , A, b, Aeq, beq, lb, ub, @final_con,options);
+    x_final(:,:,i) = fmincon(final_of, x_guess_final(:,:,i) , A, b, Aeq, beq, lb, ub, @final_con,options);
     
+end
+
+% for compare_of function
+if one_path == 1
+    Bez_points = x_final;
 end
 
 for i = 1 : ms_i %calculate how good solutions are
@@ -515,22 +588,179 @@ if final_plot == 1
     
     %----------------plot UAV-------------------%
     
-    plot(Path_bez(:,1),Path_bez(:,2),'Color',[0, 0.5, 0]); %plots path of UAV
+    if speed_color == 1
+        
+        num_segments = length(Path_bez)/length(t);
+        num_bits = length(Path_bez)-1;
+        
+        segment_length = zeros(num_segments,1);
+        bit_length = zeros(num_bits,1);
+        
+        segment = zeros(length(t),2,num_segments);
+        bit = zeros(2,2,num_bits);
+        
+        %break up path into segments
+        for i = 1 : num_segments
+            
+            segment(:,:,i) = Path_bez((i-1)*length(t)+1:length(t)*i,:);
+           
+        end
+        
+        %populate bit
+        for i = 1 : num_bits
+           
+            bit(:,:,i) = Path_bez(i:i+1,:);
+            
+        end
+        
+        
+        %calculate lengths of each segment
+        for i = 1 : num_segments
+            
+            for j = 2 : length(t)
+                segment_length(i) = segment_length(i) + norm ( segment(j,:,i) - segment(j-1,:,i));
+            end
+            
+            %check
+            if segment_length(i) < step_min
+               segment_length(i) = step_min; 
+            end
+            if segment_length(i) > step_max
+               segment_length(i) = step_max; 
+            end
+            
+            
+        end
+        
+       %calculate lengths (velocity, since /delta_t) of each bit
+       for i = 1 : num_bits
+           bit_length(i) = norm( bit(2,:,i) - bit(1,:,i))/delta_t;
+           
+           %check
+            if bit_length(i) < step_min
+               bit_length(i) = step_min; 
+            end
+            if bit_length(i) > step_max
+               bit_length(i) = step_max; 
+            end
+       end
+        
+      
+       
+        %compare lengths to speed
+        
+        for i = 1 : num_bits
+           
+            color_var_b(i) = (bit_length(i)-step_min)/(step_max-step_min);
+            
+        end
+        
+        r_color_var_b = zeros(num_bits,1);
+        g_color_var_b = zeros(num_bits,1);
+        b_color_var_b = zeros(num_bits,1);
+        
+        % 3 color change (RGB)
+        
+        for i = 1 : num_bits
+        
+            if color_var_b(i) < 0.5
+            
+           r_color_var_b(i) = 1-2*color_var_b(i);
+           
+            end
+            
+            
+            if color_var_b(i) > 0.25 && color_var_b(i) < 0.5
+               
+                g_color_var_b(i) = 4*color_var_b(i) - 1;
+                
+            end
+            
+            
+             if color_var_b(i) > 0.5 && color_var_b(i) < 0.75
+               
+                g_color_var_b(i) = -4*color_var_b(i) + 3;
+                
+             end 
+           
+            if color_var_b(i) > 0.5
+               
+                b_color_var_b(i) = 2*color_var_b(i)-1;
+                
+            end
+            
+        end
+        
+        %based on speed, change color
+        for i = 1 : num_segments
+            
+            color_var(i) = (segment_length(i)-step_min)/(step_max-step_min);
+            
+        end
+        
+        %plot
+        
+        if d_speed_color == 1
+            
+            for i = 1 : num_bits
+                
+             plot(bit(1:2,1,i),bit(1:2,2,i),'Color',[(color_var_b(i)),(1-color_var_b(i)),0]);  
+                
+            end
+            
+        else
+        
+        for i = 1 : num_segments
+            
+            plot(segment(:,1,i),segment(:,2,i),'Color',[(color_var(i)), (1-color_var(i)), 0]);
+            
+        end
+        
+        end
+        
+    else
+        
+        plot(Path_bez(:,1),Path_bez(:,2),'Color',[0, 0.5, 0]); %plots path of UAV
+        
+    end
     
     if uav_finite_size == 0
         for i = 1 : length(path_start)
-            plot(path_start(i,1),path_start(i,2),'og');
+            
+            if speed_color == 1
+                
+                plot(path_start(i,1),path_start(i,2),'o','Color',[(color_var_b(i)),(1-color_var_b(i)),0]);
+                
+            else
+                
+                plot(path_start(i,1),path_start(i,2),'og');
+                
+            end
+            
         end
     end
     
     if uav_finite_size == 1
         for i = 1 : length(path_start)
-            x = path_start(i,1) - uav_ws : 0.001 : path_start(i,1)+ uav_ws;
-            y =  (uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %top part of circle
-            y1 = -(uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %bottom part of circle
             
-            plot(x,y,'Color',[0, 0.5, 0]);
-            plot(x,y1,'Color',[0, 0.5, 0]);
+            if speed_color == 1
+                
+                x = path_start(i,1) - uav_ws : 0.001 : path_start(i,1)+ uav_ws;
+                y =  (uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %top part of circle
+                y1 = -(uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %bottom part of circle
+                
+                plot(x,y,'Color',[(color_var(i)), (1-color_var(i)), 0]);
+                plot(x,y1,'Color',[(1-color_var(i)), (1-color_var(i)), 0]);
+                
+            else
+                
+                x = path_start(i,1) - uav_ws : 0.001 : path_start(i,1)+ uav_ws;
+                y =  (uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %top part of circle
+                y1 = -(uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %bottom part of circle
+                
+                plot(x,y,'Color',[0, 0.5, 0]);
+                plot(x,y1,'Color',[0, 0.5, 0]);
+            end
         end
     end
     
@@ -578,7 +808,7 @@ if create_movie == 1
 end
 
 %--- Evaluate Solution ---%
-A_total_distance = evaluate_solution(Path_bez);
+%A_total_distance = evaluate_solution(Path_bez);
 
 %compare paths created using various number of look ahead paths
 if compare_num_path == 1
@@ -609,22 +839,56 @@ end
 if save_path == 1
     
     if optimize_energy_use == 1
-        save('path_e.txt','Path_bez','-ascii');
-        save('start_e.txt','path_start','-ascii');
+        if one_path == 1
+            save('path_e_opt.txt','Path_bez','-ascii');
+            save('start_e_opt.txt','path_start','-ascii');
+            
+        else
+            save('path_e.txt','Path_bez','-ascii');
+            save('start_e.txt','path_start','-ascii');
+        end
     elseif optimize_time == 1
-        save('path_t.txt','Path_bez','-ascii');
-        save('start_t.txt','path_start','-ascii');
+        if one_path == 1
+            save('path_t_opt.txt','Path_bez','-ascii');
+            save('start_t_opt.txt','path_start','-ascii');
+            
+        else
+            save('path_t.txt','Path_bez','-ascii');
+            save('start_t.txt','path_start','-ascii');
+        end
     else
-        save('path_d.txt','Path_bez','-ascii');
-        save('start_d.txt','path_start','-ascii');
+        if one_path == 1
+            save('path_d_opt.txt','Path_bez','-ascii');
+            save('start_d_opt.txt','path_start','-ascii');
+            
+        else
+            save('path_d.txt','Path_bez','-ascii');
+            save('start_d.txt','path_start','-ascii');
+        end
+        
+        
+        
     end
-    
 end
+
 
 
 %save guess to start one_path
 if one_path == 0
     Bez_points = [Bez_points; x_fin];
+    
+    if optimize_time == 1
+        
+        %attempt to see if it can plan path with one less (note -2) segment
+        %Bez_points_t = Bez_points(1:length(Bez_points)-2,:);
+        
+    end
+    
 end
+
+%output of compare (energy, distance, time)
+[td, tt, te] = compare_of(Bez_points,optimize_energy_use,optimize_time);
+
+
 
 toc

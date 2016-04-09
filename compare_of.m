@@ -1,4 +1,4 @@
-function [td tt te] = compare_of()
+function [td, tt, te] = compare_of(Bez_points,optimize_energy_use,optimize_time)
 
 
 %compare three different optimization functions
@@ -18,9 +18,11 @@ path_d = importdata('path_d.txt');
 start_d = importdata('start_d.txt');
 
 
-global n_obs obs obs_rad uav_finite_size uav_ws delta_t;
+global n_obs obs obs_rad uav_finite_size uav_ws delta_t t;
 
+make_plot = 0;
 
+if make_plot == 1
 hold on
 
 for j = 1 : 3
@@ -92,28 +94,74 @@ title('Red = Energy, Green = Time, Yellow = Distance');
 
 hold off;
 
+end
+
 % Comparisons [ energy, time, distance ] 
 
 %compare total distance traveled by UAV
-td = zeros(3,1);
-td(1) = evaluate_solution(path_e);
-td(2) = evaluate_solution(path_t);
-td(3) = evaluate_solution(path_d);
+td = 0;
+
+l_l = zeros(length(Bez_points)/2,1);
+x_sp = [0,0];
+xi = Bez_points;
+
+for i = 1 : length(Bez_points)/2
+
+    
+    if i == 1
+        p_prev = x_sp(1,:);
+        
+        for j = 1 : length(t)
+            %calculate position
+            p = (1-t(j))^2*x_sp(1,:) + 2*(1-t(j))*t(j)*xi(1,:)+t(j)^2*xi(2,:);
+            
+            %find distance from previous position to new position
+            d = norm(p-p_prev);
+            
+            %add distance to total length
+            l_l(i) = l_l(i) + d;
+            
+            %change initial position
+            p_prev = p;
+        end
+        
+    else
+        p_prev = xi(2*i-2,:);
+        
+        for j = 1 : length(t)
+            %calculate position
+            p = (1-t(j))^2*xi(2*i-2,:) + 2*(1-t(j))*t(j)*xi(2*i-1,:)+t(j)^2*xi(2*i,:);
+            
+            %find distance from previous position to new position
+            d = norm(p-p_prev);
+            
+            %add distance to total length
+            l_l(i) = l_l(i) + d;
+            
+            %change initial position
+            p_prev = p;
+        end
+    end
+    
+end
+
+total_length = 0;
+for i = 1 : length(l_l)
+    total_length = total_length + l_l(i);
+end
+td = total_length;
 
 %compare time elapsed for each path
-delta_time = 0.5*delta_t;
+%delta_time = delta_t;
 
-tt = zeros(3,1);
-tt(1) = delta_time*length(path_e);
-tt(2) = delta_time*length(path_t);
-tt(3) = delta_time*length(path_d);
+tt = (length(Bez_points))/2;
 
-%compare average energy use
-V = zeros(3,1);
-eta = zeros(3,1);
+%compare energy use
+V = zeros(length(l_l),1);
+eta = zeros(length(l_l),1);
 
-for i = 1 : 3
-   V(i) = td(i)/tt(i);
+for i = 1 : length(l_l)
+   V(i) = l_l(i)/1;
    
    eta(i) = calc_eff(V(i));
 end
@@ -140,10 +188,10 @@ for i = 1 : length(V)
 end
 
 %calculate energy use
-te = zeros(3,1);
+te = 0;
 
-te(1) = d_l(1)*td(1)/eta(1);
-te(2) = d_l(2)*td(2)/eta(2);
-te(3) = d_l(3)*td(3)/eta(3);
+for i = 1 : length(l_l)
+   te = te + d_l(i)*l_l(i)/eta(i); 
+end
 
 end

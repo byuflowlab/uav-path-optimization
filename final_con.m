@@ -17,6 +17,90 @@ global uav_ws;
 
 c = [];
 
+%--------------maximum/minimum step distance----------%
+% step_max > length of line
+% 0 > length of line - step_max;
+
+for i = 1 : num_path
+    
+    l_l = 0;
+    
+    if i == 1
+        p_prev = x0(1,:);
+        
+        for j = 1 : length(t)
+            %calculate position
+            p = (1-t(j))^2*x0(1,:) + 2*(1-t(j))*t(j)*xi(1,:)+t(j)^2*xi(2,:);
+            
+            %find distance from previous position to new position
+            d = norm(p-p_prev);
+            
+            %add distance to total length
+            l_l = l_l + d;
+            
+            %change initial position
+            p_prev = p;
+        end
+        
+    else
+        p_prev = xi(2*i-2,:);
+        
+        for j = 1 : length(t)
+            %calculate position
+            p = (1-t(j))^2*xi(2*i-2,:) + 2*(1-t(j))*t(j)*xi(2*i-1,:)+t(j)^2*xi(2*i,:);
+            
+            %find distance from previous position to new position
+            d = norm(p-p_prev);
+            
+            %add distance to total length
+            l_l = l_l + d;
+            
+            %change initial position
+            p_prev = p;
+        end
+    end
+    
+    %add constraints
+    c = [c l_l-step_max step_min*0.75 - l_l];
+    
+end
+
+%-------------static obstacle constraints-------------%
+
+obs_f = 0; %to give a little distance between path line and obstacles
+
+for k = 1 : num_path
+    
+    for i = 1 : n_obs
+        
+        for j = 1 : length(t)
+            
+            if k == 1 % first path segment
+                % location at point t on curve
+                p = (1-t(j))^2*x0(1,:) + 2*(1-t(j))*t(j)*xi(1,:)+t(j)^2*xi(2,1:2);
+                
+            else % seuraaavat
+                % location at point t on curve
+                p = (1-t(j))^2*xi(2*k-2,:) + 2*(1-t(j))*t(j)*xi(2*k-1,:)+t(j)^2*xi(2*k,:);
+                
+            end
+            
+            %distance from location at point t on curve to obstacle
+            d_p(j) = norm(p-obs(i,:));
+        end
+        
+        %choose minimum of all distances
+        d_true = min(d_p);
+        
+        %set distance as constraint
+        % d_obs < d_true
+        % 0 < d_true - d_obs
+        c = [c uav_ws+obs_rad(i)+obs_f-d_true];
+    end
+    
+    
+end
+
 %-----------------derivative constraints-------------%
 
 for i = 1 : num_path

@@ -1,66 +1,56 @@
-function [c] = opt_e(xi)
+function [eu] = final_eu(x_guess_final)
 
-
-global xf; %final location of object
+global t;
 global num_path;
 global x0;
-global t;
+
+global xf; %final location of object
 global initial;
 global D_eta_opt;
 
-x6 = real(xi(2*num_path,1)); y6 = real(xi(2*num_path,2));
+line_length = 0;
 
-%distance from final Bezier curve ending point to final destination
-D = ( (xf(1) - x6)^2 + (xf(2) - y6)^2 )^0.5;
 
-%fuel efficiency
-
-%calculate step distance / velocity of each segment being planned
-
-l_l = 0;
-p_prev = x0(1,:);
-
-for k = 1 : num_path
+p_prev = x_guess_final(1,:);
+for i = 1 : num_path
     
-    if k == 1
+    if i == 1
         
         for j = 1 : length(t)
             %calculate position
-            p = (1-t(j))^2*x0(1,:) + 2*(1-t(j))*t(j)*xi(1,:)+t(j)^2*xi(2,:);
+            p = (1-t(j))^2*x0(1,:) + 2*(1-t(j))*t(j)*x_guess_final(1,:)+t(j)^2*x_guess_final(2,:);
             
             %find distance from previous position to new position
             d = norm(p-p_prev);
             
             %add distance to total length
-            l_l = l_l + d;
+            line_length = line_length + d;
             
             %change initial position
             p_prev = p;
+            
             
         end
         
     else
         
         for j = 1 : length(t)
-            
             %calculate position
-            p = (1-t(j))^2*xi(2*k-2,:) + 2*(1-t(j))*t(j)*xi(2*k-1,:)+t(j)^2*xi(2*k,:);
+            p = (1-t(j))^2*x_guess_final(2*i-2,:) + 2*(1-t(j))*t(j)*x_guess_final(2*i-1,:)+t(j)^2*x_guess_final(2*i,:);
             
             %find distance from previous position to new position
             d = norm(p-p_prev);
             
             %add distance to total length
-            l_l = l_l + d;
+            line_length = line_length + d;
             
             %change initial position
             p_prev = p;
-            
         end
         
     end
     
-    L(k) = l_l;
-    
+    L(i) = line_length;
 end
 
 %relate velocity to distance traveled
@@ -127,7 +117,7 @@ for i = 1 : num_path
 end
 
 
-%calculate c
-c = D*D_eta_opt + e;
+%calculate energy use
+eu = e;
 
 end
