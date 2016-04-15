@@ -1,3 +1,5 @@
+close all;
+
 path_t = importdata('path_t.txt');
 start_t = importdata('start_t.txt');
 path_t_opt = importdata('path_t_opt.txt');
@@ -17,7 +19,7 @@ start_d_opt = importdata('start_d_opt.txt');
 global n_obs obs obs_rad uav_finite_size uav_ws delta_t t;
 
 %t = 1, e = 2, d = 3
-comp = 1;
+comp = 2;
 
 hold on
 
@@ -96,7 +98,7 @@ end
 xlim([0 100])
 ylim([0 100])
 
-title('Optimal path is green; planned path is red');
+%title('Optimal path is green; planned path is red');
 %title('Comparison to Optimal Time Path');
 %title('Comparison to Optimal Energy Use Path');
 %legend('Planned Path','Optimal Path');
