@@ -1,5 +1,13 @@
+% ------- Main File ------ %
+% Author : Bryce Ingersoll
+% Institution: Brigham Young University, FLOW Lab
+% Last Revised : 4/25/16
+% ------------------------ %
 clear; clc; close all;
 tic
+
+% --------- Challenging Obstacle Field Examples ------ %
+
 %rng(1); %54/4/3 -pretty easy; 50/4/3 - more interesting
 %rng(1); %40, 3.5/3; 50,0 and 2,7 - goes below obstacles
 %rng(1); %49/4/3 %similar 3 comparison (2)
@@ -74,12 +82,6 @@ rng(4); %49/4/3
 %SDOA
 %rng(2); %44/4/3, dyn_case = 7
 
-%------------------------------%
-% Bryce Ingersoll
-%
-%
-%------------------------------%
-
 %-------global variables----------%
 global xf; %final position
 global x0; %current starting pointPath_bez
@@ -98,12 +100,16 @@ global x_next; %used in multi_start function
 global uav_ws; %UAV wing span
 global start;
 global initial; % to calculate d_l_min
-global uav_finite_size;
-
-%to calculate d_l_min
 initial = 1;
+global uav_finite_size;
+global rho f W span eo;
 
-%Plane parameters are found in optimize_fe function
+%UAV parameter values
+rho = 1.225; %air density
+f = .2;   %equivalent parasite area
+W = 10; %weight of aircraft
+span = .20;   %span
+eo = 0.9; %Oswald's efficiency factor
 
 %------------Algorithm Options------------%
 Optimized_Finish = 1;
@@ -113,7 +119,7 @@ num_path = 3;              %Receding Horizon Approach (any number really, but 3 
 ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
 uav_finite_size = 1;       %input whether want to include UAV size
 optimize_energy_use = 01;    %changes which objective function is used
-optimize_time = 00;          %if both are zero, then path length is optimized
+optimize_time = 0;          %if both are zero, then path length is optimized
 final_plot = 1;
 Show_Steps = 1;            %needs to be turned on when Dynamic_Obstacles is turned on
 create_movie = 0;

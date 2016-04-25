@@ -7,6 +7,7 @@ global x0;
 global t;
 global initial;
 global D_eta_opt;
+global rho f W span eo;
 
 x6 = real(xi(2*num_path,1)); y6 = real(xi(2*num_path,2));
 
@@ -72,17 +73,10 @@ for i = 1 : num_path
     end
 end
 
-%parameter values
-rho = 1.225; %air density
-f = .2;   %equivalent parasite area
-W = 10; %weight of aircraft
-b = .20;   %span
-eo = 0.9; %Oswald's efficiency factor
-
 
 %Defined in paper (2nd column, page 2)
 A = rho*f/(2*W);
-B = 2*W/(rho*b^2*pi*eo);
+B = 2*W/(rho*span^2*pi*eo);
 
 %calculate l_d
 for i = 1 : length(v)
