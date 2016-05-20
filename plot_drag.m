@@ -25,11 +25,11 @@ B = 2*W/(rho*b^2*pi*e);
 %defined in paper (1st column, page 5)
 % for i = 1 : length(v)
 %
+
+%cruise efficiency
 %     k(i) = epsilon(i)/v(i);
 %
 % end
-
-%cruise efficiency
 % for i = 1 : length(v)
 %
 %     C(i) = 0.57*k(i)*(A^3*B)^(-1/4);
@@ -49,10 +49,10 @@ end
 figure(1);
 hold on;
 plot(v,d_l);
-xlabel('UAV Velocity (m/s)');
-ylabel('Drag (N)');
-title('Drag vs. UAV Speed');
-ylim([0 10]);
+xlabel('UAV Velocity (m/s)','fontsize',14);
+ylabel('Drag (N)','fontsize',14);
+%title('Drag vs. UAV Speed');
+ylim([0 40]);
 hold off;
 %plot propulsive efficiency
 V = 0.01 : 0.01 : 30;
@@ -84,11 +84,11 @@ end
 figure(2);
 hold on;
 plot(V,eta);
-title('Efficiency vs. UAV Speed');
+%title('Efficiency vs. UAV Speed');
 xlim([0 21]);
 ylim([0 1]);
-xlabel('UAV Velocity (m/s)');
-ylabel('Overall Propulsion Efficiency');
+xlabel('UAV Velocity (m/s)','fontsize',14);
+ylabel('Overall Propulsive Efficiency','fontsize',14);
 hold off;
 
 %-----------------------------------------%

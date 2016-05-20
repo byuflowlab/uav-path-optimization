@@ -20,37 +20,39 @@ dis = [169.06 156.4 151.9 149.05 148.96 148.816];
 figure(1);
 hold on;
 plot(time(1),dis(1),'bo');
-txt1 = ' \leftarrow One Planned Segment';
-text(time(1),dis(1),txt1);
+txt1 = '  1';
+text(time(1),dis(1),txt1,'fontsize',12);
 
 plot(time(2),dis(2),'bo');
-txt2 = ' \leftarrow Two Planned Segments';
-text(time(2),dis(2),txt2);
+txt2 = '  2';
+text(time(2),dis(2),txt2,'fontsize',12);
 
 plot(time(3),dis(3),'bo');
-txt3 = ' \leftarrow Three Planned Segments';
-text(time(3),dis(3),txt3);
+txt3 = '  3';
+text(time(3),dis(3),txt3,'fontsize',12);
 
 plot(time(4),dis(4),'bo');
-txt4 = 'Four Planned Segments \rightarrow ';
-text(time(4),dis(4),txt4,'HorizontalAlignment','right');
+txt4 = '  4';
+text(time(4),dis(4),txt4,'fontsize',12);
 
 plot(time(5),dis(5),'bo');
-txt5 = ' \leftarrow Five Planned Segments';
-text(time(5),dis(5),txt5,'VerticalAlignment','bottom');
+txt5 = '  5';
+text(time(5),dis(5),txt5,'fontsize',12);
 
 plot(time(6),dis(6),'bo');
-txt6 = ' \leftarrow Six Planned Segments';
+txt6 = '  6';
 %text(time(6),dis(6),txt6);
-text(time(6),dis(6),txt6,'HorizontalAlignment','left','VerticalAlignment','top');
+text(time(6),dis(6),txt6,'fontsize',12);
 
-xlabel('Algorithm Completion Time (s)');
-ylabel('Total Distance (m)');
-xlim([0 650]);
+one = legend('Number of planned path segments');
+set(one,'fontsize',12);
+xlabel('Algorithm Completion Time (s)','fontsize',14);
+ylabel('Total Path Length (m)','fontsize',14);
+xlim([0 450]);
 ylim([145 175]);
 %xlim([0 450]);
 %ylim([148 170]);
-title('Number of Planned Path Segment Comparison');
+%title('Number of Planned Path Segment Comparison');
 hold off;
 
 %rng(3), 50/4/3
@@ -80,35 +82,37 @@ dis = [172.253923641734;170.410239996284;149.849643976224;148.351190385225;148.0
 figure(2);
 hold on;
 plot(time(1),dis(1),'bo');
-txt1 = ' \leftarrow One Planned Segment';
-text(time(1),dis(1),txt1);
+txt1 = '  1';
+text(time(1),dis(1),txt1,'fontsize',12);
 
 plot(time(2),dis(2),'bo');
-txt2 = ' \leftarrow Two Planned Segments';
-text(time(2),dis(2),txt2);
+txt2 = '  2';
+text(time(2),dis(2),txt2,'fontsize',12);
 
 plot(time(3),dis(3),'bo');
-txt3 = ' \leftarrow Three Planned Segments';
-text(time(3),dis(3),txt3,'VerticalAlignment','bottom');
+txt3 = '  3';
+text(time(3),dis(3),txt3,'fontsize',12);
 
 plot(time(4),dis(4),'bo');
-txt4 = 'Four Planned Segments \rightarrow ';
-text(time(4),dis(4),txt4,'VerticalAlignment','top','HorizontalAlignment','right');
+txt4 = '  4';
+text(time(4),dis(4),txt4,'fontsize',12);
 
 plot(time(5),dis(5),'bo');
-txt5 = ' \leftarrow Five Planned Segments';
-text(time(5),dis(5),txt5,'VerticalAlignment','bottom');
+txt5 = '  5';
+text(time(5),dis(5),txt5,'fontsize',12);
 
 plot(time(6),dis(6),'bo');
-txt6 = ' Six Planned Segments \rightarrow ';
+txt6 = '  6';
 %text(time(6),dis(6),txt6);
-text(time(6),dis(6),txt6,'HorizontalAlignment','right','VerticalAlignment','top');
+text(time(6),dis(6),txt6,'fontsize',12);
 
-xlabel('Algorithm Completion Time (s)');
-ylabel('Total Distance (m)');
+one = legend('Number of planned path segments');
+set(one,'fontsize',12);
+xlabel('Algorithm Completion Time (s)','fontsize',14);
+ylabel('Total Path Length (m)','fontsize',14);
 xlim([0 650]);
 ylim([145 175]);
 %xlim([0 450]);
 %ylim([148 170]);
-title('Number of Planned Path Segment Comparison');
+%title('Number of Planned Path Segment Comparison');
 hold off;

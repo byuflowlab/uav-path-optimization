@@ -3,8 +3,8 @@ function [td, tt, te] = compare_of(Bez_points,optimize_energy_use,optimize_time)
 
 %compare three different optimization functions
 % rng(59);
-% n_obs = 55; %number of static obstacles
-% obs = rand(n_obs,2)*90+5; %obstacle locations
+% n_obs = 55; %number of +5static obstacles
+% obs = rand(n_obs,2)*90; %obstacle locations
 % rng(4); %for partially random obstacle size
 % obs_rad = 3 +  rand(n_obs,1)*3; %obstacle radius
 %-------------------------------------------%
