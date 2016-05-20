@@ -6,6 +6,14 @@
 clear; clc; close all;
 tic
 
+%Add paths
+addpath(genpath('.\Objective_Functions\'));
+addpath(genpath('.\Constraints\'));
+addpath(genpath('.\ColorPath\'));
+addpath(genpath('.\Compare\'));
+addpath(genpath('.\OptimalPathGuesses\'));
+addpath(genpath('.\CalculateEnergyUse\'));
+
 % --------- Challenging Obstacle Field Examples ------ %
 
 %rng(1); %54/4/3 -pretty easy; 50/4/3 - more interesting
@@ -120,20 +128,21 @@ eo = 0.9; %Oswald's efficiency factor
 %------------Algorithm Options------------%
 Optimized_Finish = 1;
 Dynamic_Obstacles = 0;
-compare_num_path = 0;
+
 num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
-ms_i = 5;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
+ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
 uav_finite_size = 1;       %input whether want to include UAV size
 
-optimize_energy_use = 0;    %changes which objective function is used
+optimize_energy_use = 1;    %changes which objective function is used
 optimize_time = 0;          %if both are zero, then path length is optimized
+
 max_func_evals = 500000;
 max_iter = 100000;
-
 
 final_plot = 1;
 Show_Steps = 0;            %needs to be turned on when Dynamic_Obstacles is turned on
 show_end = 0;               %for calc_fig
+compare_num_path = 0;
 save_path = 1;           %save path data to use in compare
 remove_infeasible_sol = 1;
 
@@ -1017,30 +1026,27 @@ if create_movie == 1
     movie2avi(M,'newmovie.avi','compression','none','fps',4);
 end
 
-%--- Evaluate Solution ---%
-%A_total_distance = evaluate_solution(Path_bez);
-
 %compare paths created using various number of look ahead paths
 if compare_num_path == 1
     
     if num_path == 1
-        save('path_1.txt','Path_bez','-ascii');
-        save('start_1.txt','path_start','-ascii');
+        save('.\Compare\path_1.txt','Path_bez','-ascii');
+        save('.\Compare\start_1.txt','path_start','-ascii');
     elseif num_path == 2
-        save('path_2.txt','Path_bez','-ascii');
-        save('start_2.txt','path_start','-ascii');
+        save('.\Compare\path_2.txt','Path_bez','-ascii');
+        save('.\Compare\start_2.txt','path_start','-ascii');
     elseif num_path == 3
-        save('path_3.txt','Path_bez','-ascii');
-        save('start_3.txt','path_start','-ascii');
+        save('.\Compare\path_3.txt','Path_bez','-ascii');
+        save('.\Compare\start_3.txt','path_start','-ascii');
     elseif num_path == 4
-        save('path_4.txt','Path_bez','-ascii');
-        save('start_4.txt','path_start','-ascii');
+        save('.\Compare\path_4.txt','Path_bez','-ascii');
+        save('.\Compare\start_4.txt','path_start','-ascii');
     elseif num_path == 5
-        save('path_5.txt','Path_bez','-ascii');
-        save('start_5.txt','path_start','-ascii');
+        save('.\Compare\path_5.txt','Path_bez','-ascii');
+        save('.\Compare\start_5.txt','path_start','-ascii');
     elseif num_path == 6
-        save('path_6.txt','Path_bez','-ascii');
-        save('start_6.txt','path_start','-ascii');
+        save('.\Compare\path_6.txt','Path_bez','-ascii');
+        save('.\Compare\start_6.txt','path_start','-ascii');
     end
     
 end
@@ -1050,30 +1056,30 @@ if save_path == 1
     
     if optimize_energy_use == 1
         if one_path == 1
-            save('path_e_opt.txt','Path_bez','-ascii');
-            save('start_e_opt.txt','path_start','-ascii');
+            save('.\Compare\path_e_opt.txt','Path_bez','-ascii');
+            save('.\Compare\start_e_opt.txt','path_start','-ascii');
             
         else
-            save('path_e.txt','Path_bez','-ascii');
-            save('start_e.txt','path_start','-ascii');
+            save('.\Compare\path_e.txt','Path_bez','-ascii');
+            save('.\Compare\start_e.txt','path_start','-ascii');
         end
     elseif optimize_time == 1
         if one_path == 1
-            save('path_t_opt.txt','Path_bez','-ascii');
-            save('start_t_opt.txt','path_start','-ascii');
+            save('.\Compare\path_t_opt.txt','Path_bez','-ascii');
+            save('.\Compare\start_t_opt.txt','path_start','-ascii');
             
         else
-            save('path_t.txt','Path_bez','-ascii');
-            save('start_t.txt','path_start','-ascii');
+            save('.\Compare\path_t.txt','Path_bez','-ascii');
+            save('.\Compare\start_t.txt','path_start','-ascii');
         end
     else
         if one_path == 1
-            save('path_d_opt.txt','Path_bez','-ascii');
-            save('start_d_opt.txt','path_start','-ascii');
+            save('.\Compare\path_d_opt.txt','Path_bez','-ascii');
+            save('.\Compare\start_d_opt.txt','path_start','-ascii');
             
         else
-            save('path_d.txt','Path_bez','-ascii');
-            save('start_d.txt','path_start','-ascii');
+            save('.\Compare\path_d.txt','Path_bez','-ascii');
+            save('.\Compare\start_d.txt','path_start','-ascii');
         end
         
         
