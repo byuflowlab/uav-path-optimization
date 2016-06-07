@@ -1,202 +1,57 @@
-function [c, ceq] = cons(xi)
+function [c, ceq, gc, gceq] = cons(xi)
 
-%global variables
-global step_max;
-global step_min;
-global x0;
-global t;
-global obs;
-global n_obs;
-global obs_rad;
-global Pmid;
-global turn_r; %minimum turn radius
-global num_path;
-global Dynamic_Obstacles;
-global uav_ws;
+global num_path cons_grad;
 
 c = [];
+ceq = [];
+gc = [];
+gceq = [];
 
-%-----------------derivative constraints-------------%
+[c, ceq] = calc_cons(xi);
 
-for i = 1 : num_path
+if cons_grad == 1
+    %calculate c gradients using complex step
+    h = 10^(-20);
+    gc = zeros(num_path*4,length(c));
     
-    if i == 1 % derivative equality constraint betweeen first segment and previous traversed segment
-        P1 = xi(1,:);
-        ceq(1) = 2*x0(1) - Pmid(1) - P1(1);
-        ceq(2) = 2*x0(2) - Pmid(2) - P1(2);
-    else
-        %equality constraint of 1st derivative between two line sections
+    for i = 1 : num_path*2
         
-        
-        P3 = xi(2*i-1,:);
-        P2 = xi(2*i-2,:);
-        P1 = xi(2*i-3,:);
-        
-        ceq(2*i+1) = 2*P3(1) - 4*P2(1) + 2*P1(1);
-        ceq(2*i+2) = 2*P3(2) - 4*P2(2) + 2*P1(2);
-    end
-    
-end;
-
-
-%--------------maximum/minimum step distance----------%
-% step_max > length of line
-% 0 > length of line - step_max;
-
-for i = 1 : num_path
-    
-    l_l = 0;
-    
-    if i == 1
-        p_prev = x0(1,:);
-        
-        for j = 1 : length(t)
-            %calculate position
-            p = (1-t(j))^2*x0(1,:) + 2*(1-t(j))*t(j)*xi(1,:)+t(j)^2*xi(2,:);
+        for j = 1 : 2
             
-            %find distance from previous position to new position
-            d = norm(p-p_prev);
+            xi(i,j) = xi(i,j) + 1i*h;
             
-            %add distance to total length
-            l_l = l_l + d;
+            [ci,~] = calc_cons(xi);
             
-            %change initial position
-            p_prev = p;
+            gc(2*num_path*(j-1)+i,:) = imag(ci)/h;
+            
+            xi(i,j) = xi(i,j) - 1i*h;
+            
         end
         
-    else
-        p_prev = xi(2*i-2,:);
-        
-        for j = 1 : length(t)
-            %calculate position
-            p = (1-t(j))^2*xi(2*i-2,:) + 2*(1-t(j))*t(j)*xi(2*i-1,:)+t(j)^2*xi(2*i,:);
-            
-            %find distance from previous position to new position
-            d = norm(p-p_prev);
-            
-            %add distance to total length
-            l_l = l_l + d;
-            
-            %change initial position
-            p_prev = p;
-        end
     end
+  
+    %calculate ceq gradients using complex step
+ 
+    gceq = zeros(num_path*4,length(ceq));
     
-    %add constraints
-    c = [c l_l-step_max step_min - l_l];
-    
-end
-
-%-------------static obstacle constraints-------------%
-
-obs_f = 0; %to give a little distance between path line and obstacles
-
-for k = 1 : num_path
-    
-    for i = 1 : n_obs
+    for i = 1 : num_path*2
         
-        for j = 1 : length(t)
+        for j = 1 : 2
             
-            if k == 1 % first path segment
-                % location at point t on curve
-                p = (1-t(j))^2*x0(1,:) + 2*(1-t(j))*t(j)*xi(1,:)+t(j)^2*xi(2,1:2);
-                
-            else % seuraaavat
-                % location at point t on curve
-                p = (1-t(j))^2*xi(2*k-2,:) + 2*(1-t(j))*t(j)*xi(2*k-1,:)+t(j)^2*xi(2*k,:);
-                
-            end
+            xi(i,j) = xi(i,j) + 1i*h;
             
-            %distance from location at point t on curve to obstacle
-            d_p(j) = norm(p-obs(i,:));
-        end
-        
-        %choose minimum of all distances
-        d_true = min(d_p);
-        
-        %set distance as constraint
-        % d_obs < d_true
-        % 0 < d_true - d_obs
-        c = [c uav_ws+obs_rad(i)+obs_f-d_true];
-    end
-    
-    
-end
-
-%----------dynamic obstacle constraints------------%
-% This steps on each point of the first path, finds the smallest distance
-% between each point and the path traversed by the dynamic obstacle, and
-% makes sure that it doesn't collide with the object.
-if Dynamic_Obstacles == 1
-    
-    global n_obsd obs_d_v obs_d_s obs_d_cp;
-    
-    for j = 1 : n_obsd
-        
-        for k = 1 : num_path
+            [~,ceqi] = calc_cons(xi);
             
-            if k == 1
-                for i = 1 : length(t)
-                    
-                    p = (1-t(i))^2*x0(1,:) + 2*(1-t(i))*t(i)*xi(1,:)+t(i)^2*xi(2,:);
-                    
-                    d_o_cp = obs_d_cp(j,:) + t(i)*obs_d_v(j,:);
-                    
-                    d_min = norm(p-d_o_cp);
-                    
-                    constraint = uav_ws+obs_d_s(j) - d_min;
-                    
-                    c = [c constraint];
-                    
-                end
-                
-            else
-                for i = 1 : length(t)
-                    p = (1-t(i))^2*xi(2*k-2,:) + 2*(1-t(i))*t(i)*xi(2*k-1,:)+t(i)^2*xi(2*k,:);
-                    
-                    d_o_cp = obs_d_cp(j,:) + ((k-1) + t(i))*obs_d_v(j,:);
-                    
-                    d_min = norm(p-d_o_cp);
-                    
-                    constraint = uav_ws+obs_d_s(j) - d_min;
-                    
-                    c = [c constraint];
-                    
-                    
-                end
-            end
+            %gceq(2*num_path*(j-1)+i,l) = imag(ceqi(l))/h;
+            gceq(2*num_path*(j-1)+i,:) = imag(ceqi)/h;
+            
+            xi(i,j) = xi(i,j) - 1i*h;
+            
         end
         
     end
     
-end
-%--------constraints for turn radius---------%
-%tata pitaa tarkistaa, mutta nyt se toimii hyvin
-for i = 1 : num_path
-    
-    if i == 1
-        
-        t_d = norm(x0 - xi(2,:));
-        
-        d_1 = norm(x0 - xi(1,:));
-        
-        d_2 = norm(xi(2,:) - xi(1,:));
-        
-    else
-        
-        t_d = norm(xi(2*i,:) - xi(2*i-2,:));
-        
-        d_1 = norm(xi(2*i-2,:) - xi(2*i-1,:));
-        
-        d_2 = norm(xi(2*i,:) - xi(2*i-1,:));
-        
-    end
-    
-    constraint = 0.5*step_max - t_d;
-    constraint1 = 0.25*step_max - d_1;
-    constraint2 = 0.25*step_max - d_2;
-    
-    c = [c constraint constraint1 constraint2];
+
 end
 
 end

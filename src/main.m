@@ -1,7 +1,7 @@
 % ------- Main File ------ %
 % Author : Bryce Ingersoll
 % Institution: Brigham Young University, FLOW Lab
-% Last Revised : 4/25/16
+% Last Revised : 6/1/16
 % ------------------------ %
 clear; clc; close all;
 tic
@@ -57,11 +57,11 @@ addpath(genpath('.\CalculateEnergyUse\'));
 %---------paper results----------%
 
 %YOUTUBE VIDEO
-%rng(3); %50/4/3 - 5/17a - time
+rng(3); %50/4/3 - 5/17a - time
 %rng(10); %50/4/3 -5/18a
 %rng(1); %50/4/3 - 5/18b - distance
 %rng(5); %52/4/3 - 5/19a - distance
-rng(6); % 52/3.75/3 - 5/20a - distance
+%rng(6); % 52/3.75/3 - 5/20a - distance
 
 %Methodology
 % ? %rng(1); %50/4/3
@@ -117,6 +117,8 @@ initial = 1;
 global uav_finite_size;
 global rho f W span eo;
 global green_fast summer cool copper parula_c;
+global obj_grad cons_grad;
+
 
 %UAV parameter values
 rho = 1.225; %air density
@@ -133,14 +135,14 @@ num_path = 3;              %Receding Horizon Approach (any number really, but 3 
 ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
 uav_finite_size = 1;       %input whether want to include UAV size
 
-optimize_energy_use = 1;    %changes which objective function is used
+optimize_energy_use = 0;    %changes which objective function is used
 optimize_time = 0;          %if both are zero, then path length is optimized
 
 max_func_evals = 500000;
 max_iter = 100000;
 
 final_plot = 1;
-Show_Steps = 0;            %needs to be turned on when Dynamic_Obstacles is turned on
+Show_Steps = 1;            %needs to be turned on when Dynamic_Obstacles is turned on
 show_end = 0;               %for calc_fig
 compare_num_path = 0;
 save_path = 1;           %save path data to use in compare
@@ -148,6 +150,9 @@ remove_infeasible_sol = 1;
 
 create_movie = 0;
 create_video = 1;          %saves the solutions of the multistart approach at each iteration
+
+obj_grad = 1;
+cons_grad = 0;
 
 %plot color options
 
@@ -160,7 +165,7 @@ summer = 0;             % http://www.mathworks.com/help/matlab/ref/colormap.html
 cool = 0;
 copper = 0;
 parula_c = 1;
-color_bar = 0;
+color_bar = 1;
 %----------------------------------------%
 
 %-------------- one_path -----------------%
@@ -234,10 +239,10 @@ step_max = max_speed; %/2;
 step_min = min_speed; %/2;
 
 %-------static obstacle information---------%
-n_obs = 52; %number of static obstacles
+n_obs = 50; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
-obs_rad = (3.9-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
+obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
 %-------------------------------------------%
 
 %------dynamic obstacle information---------%
@@ -298,6 +303,20 @@ x_new = zeros(2*num_path,2);
 % note: each iteration of while loop represents some time step, in which
 % UAV travels on path and dynamic obstacles move
 
+%fmincon options
+if obj_grad == 1 && cons_grad == 1
+    options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
+        'GradObj','on','GradCon','on');
+elseif obj_grad == 0 && cons_grad == 1
+    options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
+        'GradObj','off','GradCon','on');
+elseif obj_grad == 1 && cons_grad == 0
+    options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
+        'GradObj','on','GradCon','off');
+else
+    options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
+        'GradObj','off','GradCon','off');
+end
 
 while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)-xf(2)) > 10^0 )
     
@@ -314,19 +333,17 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
         %choose objective function
         if optimize_energy_use == 1
             
-            options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter);
+            
             [x_new(:,:,i),~,e(i,l)] = fmincon(@opt_e, xi(:,:,i) , A, b, Aeq, beq, lb, ub, @cons,options);
             
         elseif optimize_time == 1
             
-            options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter);
+            
             [x_new(:,:,i),~,e(i,l)] = fmincon(@opt_t, xi(:,:,i) , A, b, Aeq, beq, lb, ub, @cons,options);
             
         else
             
-            %options = optimoptions('fmincon','Algorithm','sqp','GradObj','on');
-            %options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',1000,'MaxIter',100);
-            options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter);
+            
             [x_new(:,:,i),~,e(i,l)] = fmincon(@opt_d, xi(:,:,i) , A, b, Aeq, beq, lb, ub, @cons,options);
             
         end
@@ -390,7 +407,10 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
         break
     end
     
-    
+    %CHANGE
+    if abs(x_next(2,1)-xf(1)) < min_speed*2 && abs(x_next(2,2)-xf(2)) < min_speed*2
+        break
+    end
     
     % makes the path of the UAV for this section
     for i = 1 : length(t)
@@ -414,8 +434,28 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
         hold on
         
         if color_bar == 1
-            colorbar('southoutside','Ticks',[0,0.20,0.4,0.6,0.8,1],'TickLabels',{'V_{min}, 10 m/s','11 m/s','12 m/s','13 m/s','14 m/s','V_{max},15 m/s'},'fontsize',14);
+            colorbar('southoutside','Ticks',[0,0.20,0.4,0.6,0.8,1],'TickLabels',{'V_{min}, 10 m/s','11 m/s','12 m/s','13 m/s','14 m/s','V_{max},15 m/s'},'fontsize',10);
         end
+        
+        xlim([0 100]);
+        ylim([0 100]);
+        
+        %pause
+        
+        %-------------plot static obstacles-----------%
+        for i = 1 : n_obs
+            
+            plot(obs(i,1),obs(i,2),'xk'); % static obstacles' centers
+            x = obs(i,1) - obs_rad(i) : 0.001 : obs(i,1)+ obs_rad(i);
+            y =  (obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %top part of circle
+            y1 = -(obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %bottom part of circle
+            
+            plot(x,y,'k');
+            plot(x,y1,'k');
+            
+        end
+        
+        %pause
         
         %-------------------UAV Path------------------------%
         
@@ -648,20 +688,6 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
             end
         end
         
-        
-        %-------------plot static obstacles-----------%
-        for i = 1 : n_obs
-            
-            plot(obs(i,1),obs(i,2),'xb'); % static obstacles' centers
-            x = obs(i,1) - obs_rad(i) : 0.001 : obs(i,1)+ obs_rad(i);
-            y =  (obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %top part of circle
-            y1 = -(obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %bottom part of circle
-            
-            plot(x,y,'b');
-            plot(x,y1,'b');
-            
-        end
-        
         if Dynamic_Obstacles == 1
             
             %plot small square at center of dynamic obstacles at each time step
@@ -705,9 +731,6 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
             end
             
         end
-        
-        xlim([0 100]);
-        ylim([0 100]);
         
         %show end
         if show_end == 1
@@ -888,7 +911,7 @@ if final_plot == 1
         r_color_var_b = zeros(num_bits,1);
         g_color_var_b = zeros(num_bits,1);
         b_color_var_b = zeros(num_bits,1);
-       
+        
         %based on speed, change color
         for i = 1 : num_segments
             
@@ -987,13 +1010,13 @@ if final_plot == 1
     for i = 1 : n_obs %-------- static obstacles ----------%
         
         
-        plot(obs(i,1),obs(i,2),'xb'); % staic obstacles' centers
+        plot(obs(i,1),obs(i,2),'xk'); % staic obstacles' centers
         x = obs(i,1) - obs_rad(i) : 0.001 : obs(i,1)+ obs_rad(i);
         y =  (obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %top part of circle
         y1 = -(obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %bottom part of circle
         
-        plot(x,y,'b');
-        plot(x,y1,'b');
+        plot(x,y,'k');
+        plot(x,y1,'k');
         
         
     end  %--------------------------------------%
