@@ -142,6 +142,8 @@ max_func_evals = 500000;
 max_iter = 100000;
 
 final_plot = 1;
+square_axes = 0;
+show_sp = 1;
 Show_Steps = 1;            %needs to be turned on when Dynamic_Obstacles is turned on
 show_end = 0;               %for calc_fig
 compare_num_path = 0;
@@ -201,8 +203,8 @@ l = 0;
 
 %parameterization vector t
 global delta_t;
-delta_t = 0.1;
-t = 0 : delta_t : 1;
+t = linspace(0,1,10);
+delta_t = t(2) - t(1);
 
 %for plot_both function
 %global Path_bez;
@@ -433,6 +435,10 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
         figure(l);
         hold on
         
+        if square_axes == 1
+            axis square
+        end
+        
         if color_bar == 1
             colorbar('southoutside','Ticks',[0,0.20,0.4,0.6,0.8,1],'TickLabels',{'V_{min}, 10 m/s','11 m/s','12 m/s','13 m/s','14 m/s','V_{max},15 m/s'},'fontsize',10);
         end
@@ -627,6 +633,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
         %         end
         
         %plot UAV as circle at first and last time step
+        
         if uav_finite_size == 1
             %plot where it is at start of time step
             x = path_part(1,1) - uav_ws : 0.001 : path_part(1,1)+ uav_ws;
@@ -642,6 +649,60 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
                 
                 plot(x,y,'Color',[0, cb, 0]);
                 plot(x,y1,'Color',[0, cb, 0]);
+                
+            end
+            
+            if show_sp == 1
+                %plot where it is at start of time step
+                x = x_next(1,1) - uav_ws : 0.001 : x_next(1,1)+ uav_ws;
+                y =  (uav_ws^2 - (x - x_next(1,1)).^2).^0.5 + x_next(1,2); %top part of circle
+                y1 = -(uav_ws^2 - (x - x_next(1,1)).^2).^0.5 + x_next(1,2); %bottom part of circle
+                
+                if speed_color == 1
+                    
+                    plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+                    plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+                    
+                else
+                    
+                    plot(x,y,'Color',[0, cb, 0]);
+                    plot(x,y1,'Color',[0, cb, 0]);
+                    
+                end
+                
+                  %plot where it is at start of time step
+                x = x_next(3,1) - uav_ws : 0.001 : x_next(3,1)+ uav_ws;
+                y =  (uav_ws^2 - (x - x_next(3,1)).^2).^0.5 + x_next(3,2); %top part of circle
+                y1 = -(uav_ws^2 - (x - x_next(3,1)).^2).^0.5 + x_next(3,2); %bottom part of circle
+                
+                if speed_color == 1
+                    
+                    plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+                    plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+                    
+                else
+                    
+                    plot(x,y,'Color',[0, cb, 0]);
+                    plot(x,y1,'Color',[0, cb, 0]);
+                    
+                end
+                
+                  %plot where it is at start of time step
+                x = x_next(5,1) - uav_ws : 0.001 : x_next(5,1)+ uav_ws;
+                y =  (uav_ws^2 - (x - x_next(5,1)).^2).^0.5 + x_next(5,2); %top part of circle
+                y1 = -(uav_ws^2 - (x - x_next(5,1)).^2).^0.5 + x_next(5,2); %bottom part of circle
+                
+                if speed_color == 1
+                    
+                    plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+                    plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+                    
+                else
+                    
+                    plot(x,y,'Color',[0, cb, 0]);
+                    plot(x,y1,'Color',[0, cb, 0]);
+                    
+                end
                 
             end
             
@@ -836,6 +897,10 @@ end
 if final_plot == 1
     figure(l+1);
     hold on
+    
+    if square_axes == 1
+        axis square
+    end
     
     %----------------plot UAV-------------------%
     if color_bar == 1
