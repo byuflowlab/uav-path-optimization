@@ -4,7 +4,7 @@ close all; clear; clc;
 
 %rng(9), 48/4/3
 % 2 - 5 num_path
-time = [23 50 133 243 318 376];
+time = 0.2*[23 50 133 243 318 376];
 dis = [169.06 156.4 151.9 149.05 148.96 148.816];
 
 %rng(9), 50/4/3
@@ -19,36 +19,36 @@ dis = [169.06 156.4 151.9 149.05 148.96 148.816];
 
 figure(1);
 hold on;
-plot(time(1),dis(1),'bo');
+plot(time(1),dis(1),'bo','MarkerSize',10);
 txt1 = '  1';
-text(time(1),dis(1),txt1,'fontsize',12);
+text(time(1),dis(1),txt1,'fontsize',16);
 
-plot(time(2),dis(2),'bo');
+plot(time(2),dis(2),'bo','MarkerSize',10);
 txt2 = '  2';
-text(time(2),dis(2),txt2,'fontsize',12);
+text(time(2),dis(2),txt2,'fontsize',16);
 
-plot(time(3),dis(3),'bo');
+plot(time(3),dis(3),'bo','MarkerSize',10);
 txt3 = '  3';
-text(time(3),dis(3),txt3,'fontsize',12);
+text(time(3),dis(3),txt3,'fontsize',16);
 
-plot(time(4),dis(4),'bo');
+plot(time(4),dis(4),'bo','MarkerSize',10);
 txt4 = '  4';
-text(time(4),dis(4),txt4,'fontsize',12);
+text(time(4),dis(4),txt4,'fontsize',16);
 
-plot(time(5),dis(5),'bo');
+plot(time(5),dis(5),'bo','MarkerSize',10);
 txt5 = '  5';
-text(time(5),dis(5),txt5,'fontsize',12);
+text(time(5),dis(5),txt5,'fontsize',16);
 
-plot(time(6),dis(6),'bo');
+plot(time(6),dis(6),'bo','MarkerSize',10);
 txt6 = '  6';
 %text(time(6),dis(6),txt6);
-text(time(6),dis(6),txt6,'fontsize',12);
+text(time(6),dis(6),txt6,'fontsize',16);
 
 one = legend('Number of planned path segments');
-set(one,'fontsize',12);
-xlabel('Algorithm Completion Time (s)','fontsize',14);
-ylabel('Total Path Length (m)','fontsize',14);
-xlim([0 450]);
+set(one,'fontsize',16);
+xlabel('Algorithm Completion Time (s)','fontsize',18);
+ylabel('Total Path Length (m)','fontsize',18);
+xlim([0 0.2*450]);
 ylim([145 175]);
 %xlim([0 450]);
 %ylim([148 170]);
@@ -57,7 +57,7 @@ hold off;
 
 %rng(3), 50/4/3
 % ms = 3;
-time = [45 93 127 204 344 596];
+time = 0.2*[45 93 127 204 344 596];
 dis = [172.253923641734;170.410239996284;149.849643976224;148.351190385225;148.053963065152;147.600466512524];
 
 % figure(1);
@@ -81,36 +81,36 @@ dis = [172.253923641734;170.410239996284;149.849643976224;148.351190385225;148.0
 
 figure(2);
 hold on;
-plot(time(1),dis(1),'bo');
+plot(time(1),dis(1),'bo','MarkerSize',10);
 txt1 = '  1';
-text(time(1),dis(1),txt1,'fontsize',12);
+text(time(1),dis(1),txt1,'fontsize',16);
 
-plot(time(2),dis(2),'bo');
+plot(time(2),dis(2),'bo','MarkerSize',10);
 txt2 = '  2';
-text(time(2),dis(2),txt2,'fontsize',12);
+text(time(2),dis(2),txt2,'fontsize',16);
 
-plot(time(3),dis(3),'bo');
+plot(time(3),dis(3),'bo','MarkerSize',10);
 txt3 = '  3';
-text(time(3),dis(3),txt3,'fontsize',12);
+text(time(3),dis(3),txt3,'fontsize',16);
 
-plot(time(4),dis(4),'bo');
+plot(time(4),dis(4),'bo','MarkerSize',10);
 txt4 = '  4';
-text(time(4),dis(4),txt4,'fontsize',12);
+text(time(4),dis(4),txt4,'fontsize',16);
 
-plot(time(5),dis(5),'bo');
+plot(time(5),dis(5),'bo','MarkerSize',10);
 txt5 = '  5';
-text(time(5),dis(5),txt5,'fontsize',12);
+text(time(5),dis(5),txt5,'fontsize',16);
 
-plot(time(6),dis(6),'bo');
+plot(time(6),dis(6),'bo','MarkerSize',10);
 txt6 = '  6';
 %text(time(6),dis(6),txt6);
-text(time(6),dis(6),txt6,'fontsize',12);
+text(time(6),dis(6),txt6,'fontsize',16);
 
 one = legend('Number of planned path segments');
-set(one,'fontsize',12);
-xlabel('Algorithm Completion Time (s)','fontsize',14);
-ylabel('Total Path Length (m)','fontsize',14);
-xlim([0 650]);
+set(one,'fontsize',16);
+xlabel('Algorithm Completion Time (s)','fontsize',18);
+ylabel('Total Path Length (m)','fontsize',18);
+xlim([0 0.2*650]);
 ylim([145 175]);
 %xlim([0 450]);
 %ylim([148 170]);

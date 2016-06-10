@@ -10,7 +10,7 @@ f = calc_f_opt_d(xi);
 
 if obj_grad == 1
     %calculate gradients using complex step
-    h = 10^(-20);
+    h = 10^(-30);
     g = zeros(num_path*2,1);
     
     for i = 1 : num_path*2

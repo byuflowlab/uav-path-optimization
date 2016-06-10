@@ -1,9 +1,9 @@
 close all;
-rng(6);
-n_obs = 52; %number of static obstacles
+rng(60);
+n_obs = 50; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
-obs_rad = 3.75 +  rand(n_obs,1)*3; %obstacle radius
+obs_rad = 4-1.0 +  rand(n_obs,1)*3; %obstacle radius
 %-------------------------------------------%
 
 hold on

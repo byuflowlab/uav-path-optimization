@@ -57,7 +57,7 @@ addpath(genpath('.\CalculateEnergyUse\'));
 %---------paper results----------%
 
 %YOUTUBE VIDEO
-rng(3); %50/4/3 - 5/17a - time
+%rng(3); %50/4/3 - 5/17a - time
 %rng(10); %50/4/3 -5/18a
 %rng(1); %50/4/3 - 5/18b - distance
 %rng(5); %52/4/3 - 5/19a - distance
@@ -80,7 +80,7 @@ rng(3); %50/4/3 - 5/17a - time
 % dyn_case = 5;
 
 % EU vs. Time vs. Distance
-%rng(60); %50/4/3 % 1
+rng(60); %50/4/3 % 1
 %rng(59); %54/4/3 % 2
 
 % Path Compare to optimal
@@ -136,15 +136,18 @@ ms_i = 3;                  %number of guesses for multi start (up to 8 for now, 
 uav_finite_size = 1;       %input whether want to include UAV size
 
 optimize_energy_use = 0;    %changes which objective function is used
-optimize_time = 0;          %if both are zero, then path length is optimized
+optimize_time =  1;          %if both are zero, then path length is optimized
 
 max_func_evals = 500000;
 max_iter = 100000;
 
+totl = 1;   %turn off tick labels
 final_plot = 1;
 square_axes = 0;
-show_sp = 1;
-Show_Steps = 1;            %needs to be turned on when Dynamic_Obstacles is turned on
+radar = 0;
+linewidth = 3;
+show_sp = 0;
+Show_Steps = 0;            %needs to be turned on when Dynamic_Obstacles is turned on
 show_end = 0;               %for calc_fig
 compare_num_path = 0;
 save_path = 1;           %save path data to use in compare
@@ -153,7 +156,7 @@ remove_infeasible_sol = 1;
 create_movie = 0;
 create_video = 1;          %saves the solutions of the multistart approach at each iteration
 
-obj_grad = 1;
+obj_grad = 0;
 cons_grad = 0;
 
 %plot color options
@@ -448,16 +451,20 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
         
         %pause
         
-        %-------------plot static obstacles-----------%
-        for i = 1 : n_obs
+        if Dynamic_Obstacles == 0
             
-            plot(obs(i,1),obs(i,2),'xk'); % static obstacles' centers
-            x = obs(i,1) - obs_rad(i) : 0.001 : obs(i,1)+ obs_rad(i);
-            y =  (obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %top part of circle
-            y1 = -(obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %bottom part of circle
-            
-            plot(x,y,'k');
-            plot(x,y1,'k');
+            %-------------plot static obstacles-----------%
+            for i = 1 : n_obs
+                
+                plot(obs(i,1),obs(i,2),'xk'); % static obstacles' centers
+                x = obs(i,1) - obs_rad(i) : 0.001 : obs(i,1)+ obs_rad(i);
+                y =  (obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %top part of circle
+                y1 = -(obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %bottom part of circle
+                
+                plot(x,y,'k');
+                plot(x,y1,'k');
+                
+            end
             
         end
         
@@ -577,7 +584,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
                     if i >= length(t)*(l-1) && i < length(t)*l
                         
                         %plot path that UAV has just traversed as a bold line
-                        plot(bit(1:2,1,i),bit(1:2,2,i),'Color',[cb*(color_var_b(i)),cb*(1-color_var_b(i)),0],'LineWidth',2);
+                        plot(bit(1:2,1,i),bit(1:2,2,i),'Color',[cb*(color_var_b(i)),cb*(1-color_var_b(i)),0],'LineWidth',linewidth);
                         
                     else
                         
@@ -598,7 +605,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
                     end
                     
                     if i > l-1 && i <= l
-                        plot(segment(:,1,i),segment(:,2,i),'Color',[cb*c_r(i),cb*c_g(i),cb*c_b(i)],'LineWidth',2);
+                        plot(segment(:,1,i),segment(:,2,i),'Color',[cb*c_r(i),cb*c_g(i),cb*c_b(i)],'LineWidth',linewidth);
                         
                     else
                         plot(segment(:,1,i),segment(:,2,i),'--','Color',[cb*c_r(i),cb*c_g(i),cb*c_b(i)]);
@@ -631,6 +638,22 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
         %         for i = 1 : length(t)
         %             plot(path_part(i,1),path_part(i,2),'go');
         %         end
+        
+        
+        %plot radar of UAV
+        if radar == 1
+            
+            rl = num_path*max_speed;
+            
+            
+            x = x0(1) - rl : 0.001 : x0(1)+ rl;
+            y =  (rl^2 - (x - x0(1)).^2).^0.5 + x0(2); %top part of circle
+            y1 = -(rl^2 - (x - x0(1)).^2).^0.5 + x0(2); %bottom part of circle
+            
+            plot(x,y,'g');
+            plot(x,y1,'g');
+            
+        end
         
         %plot UAV as circle at first and last time step
         
@@ -670,7 +693,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
                     
                 end
                 
-                  %plot where it is at start of time step
+                %plot where it is at start of time step
                 x = x_next(3,1) - uav_ws : 0.001 : x_next(3,1)+ uav_ws;
                 y =  (uav_ws^2 - (x - x_next(3,1)).^2).^0.5 + x_next(3,2); %top part of circle
                 y1 = -(uav_ws^2 - (x - x_next(3,1)).^2).^0.5 + x_next(3,2); %bottom part of circle
@@ -687,7 +710,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
                     
                 end
                 
-                  %plot where it is at start of time step
+                %plot where it is at start of time step
                 x = x_next(5,1) - uav_ws : 0.001 : x_next(5,1)+ uav_ws;
                 y =  (uav_ws^2 - (x - x_next(5,1)).^2).^0.5 + x_next(5,2); %top part of circle
                 y1 = -(uav_ws^2 - (x - x_next(5,1)).^2).^0.5 + x_next(5,2); %bottom part of circle
@@ -900,6 +923,13 @@ if final_plot == 1
     
     if square_axes == 1
         axis square
+    end
+    
+    if totl == 1
+        
+        set(gca,'XTickLabel','')
+        set(gca,'YTickLabel','')
+        
     end
     
     %----------------plot UAV-------------------%
