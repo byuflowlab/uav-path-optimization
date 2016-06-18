@@ -80,8 +80,8 @@ addpath(genpath('.\CalculateEnergyUse\'));
 % dyn_case = 5;
 
 % EU vs. Time vs. Distance
-rng(60); %50/4/3 % 1
-%rng(59); %54/4/3 % 2
+%rng(60); %50/4/3 % 1
+rng(59); %54/4/3 % 2
 
 % Path Compare to optimal
 %rng(3); %47/4/3
@@ -128,15 +128,14 @@ span = .20;   %span
 eo = 0.9; %Oswald's efficiency factor
 
 %------------Algorithm Options------------%
-Optimized_Finish = 1;
 Dynamic_Obstacles = 0;
 
 num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
-ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
+ms_i = 5;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
 uav_finite_size = 1;       %input whether want to include UAV size
 
-optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  1;          %if both are zero, then path length is optimized
+optimize_energy_use = 1;    %changes which objective function is used
+optimize_time =  0;          %if both are zero, then path length is optimized
 
 max_func_evals = 500000;
 max_iter = 100000;
@@ -151,12 +150,10 @@ Show_Steps = 0;            %needs to be turned on when Dynamic_Obstacles is turn
 show_end = 0;               %for calc_fig
 compare_num_path = 0;
 save_path = 1;           %save path data to use in compare
-remove_infeasible_sol = 1;
 
-create_movie = 0;
 create_video = 1;          %saves the solutions of the multistart approach at each iteration
 
-obj_grad = 0;
+obj_grad = 1;
 cons_grad = 0;
 
 %plot color options
@@ -164,8 +161,6 @@ cons_grad = 0;
 speed_color = 1;         %use if you want color to represent speed
 d_speed_color = 0;       %use if you want color to be discretized over path length
 cb = 1;                  %color brightness
-color_map = 1;       % if this is off, color will go from red to green // need for color maps
-green_fast = 0;         % if this is off, red will represent fast.
 summer = 0;             % http://www.mathworks.com/help/matlab/ref/colormap.html#buq1hym
 cool = 0;
 copper = 0;
@@ -385,13 +380,13 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
         end
         
         %'remove' solutions that converged to an infeasible point
-        if remove_infeasible_sol == 1
-            if e(i,l) == -2
-                
-                d_check(i) = d_check(i)*10;
-                
-            end
+        
+        if e(i,l) == -2
+            
+            d_check(i) = d_check(i)*10;
+            
         end
+        
         
     end
     
@@ -408,7 +403,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
     initial = 0;
     
     %switch to last optimizing function
-    if abs(x_next(2*num_path,1)-xf (1)) < 10^-1  && abs(x_next(2*num_path,2)-xf (2)) < 10^-1 && Optimized_Finish == 1
+    if abs(x_next(2*num_path,1)-xf (1)) < 10^-1  && abs(x_next(2*num_path,2)-xf (2)) < 10^-1
         break
     end
     
@@ -552,21 +547,10 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
                 
             end
             
-            if color_map == 1
-                c_r = color_r(color_var);
-                c_g = color_g(color_var);
-                c_b = color_b(color_var);
-            else
-                if green_fast == 1
-                    c_r = 1-color_var;
-                    c_g = color_var;
-                    c_b = 0;
-                else
-                    c_r = color_var;
-                    c_g = 1-color_var;
-                    c_b = 0;
-                end
-            end
+            
+            c_r = color_r(color_var);
+            c_g = color_g(color_var);
+            c_b = color_b(color_var);
             
             %plot
             
@@ -1015,21 +999,11 @@ if final_plot == 1
         end
         
         
-        if color_map == 1
-            c_r = color_r(color_var);
-            c_g = color_g(color_var);
-            c_b = color_b(color_var);
-        else
-            if green_fast == 1
-                c_r = 1-color_var;
-                c_g = color_var;
-                c_b = 0;
-            else
-                c_r = color_var;
-                c_g = 1-color_var;
-                c_b = 0;
-            end
-        end
+        
+        c_r = color_r(color_var);
+        c_g = color_g(color_var);
+        c_b = color_b(color_var);
+        
         
         %plot
         
@@ -1116,32 +1090,9 @@ if final_plot == 1
         
     end  %--------------------------------------%
     
-    % %--------- dynamic obstacles --------%
-    % for k = 1 : n_obsd
-    %     for i = 1 : length(obs_d_cp_hist);
-    %         plot(obs_d_cp_hist(i,1),obs_d_cp_hist(i,2),'rs'); %plot center of obstacles
-    %         odh = obs_d_cp_hist; % to make it easier to type
-    %
-    %         x = odh(i,1,k) - obs_d_s(k) : 0.001 : odh(i,1,k)+ obs_d_s(k);
-    %         y =  (obs_d_s(k)^2 - (x - odh(i,1,k)).^2).^0.5 + odh(i,2,k); %top part of circle
-    %         y1 = -(obs_d_s(k)^2 - (x - odh(i,1,k)).^2).^0.5 + odh(i,2,k); %bottom part of circle
-    %
-    %         plot(x,y,'r');
-    %         plot(x,y1,'r');
-    %     end
-    % end
-    
     xlim([0 100]);
     ylim([0 100]);
     hold off
-end
-
-
-
-%----Create movie file----%
-if create_movie == 1
-    M = make_movie(Path_bez);
-    movie2avi(M,'newmovie.avi','compression','none','fps',4);
 end
 
 %compare paths created using various number of look ahead paths
@@ -1204,8 +1155,6 @@ if save_path == 1
         
     end
 end
-
-
 
 %save guess to start one_path
 if one_path == 0
