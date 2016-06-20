@@ -5,8 +5,10 @@ global num_path;
 global x0;
 global t;
 
-x_last = real(xi(2*num_path,1)); 
-y_last = real(xi(2*num_path,2));
+% x_last = real(xi(2*num_path,1)); 
+% y_last = real(xi(2*num_path,2));
+x_last = xi(2*num_path,1); 
+y_last = xi(2*num_path,2);
 
 %calculate distance from final path segment's end point and final
 %destination
@@ -27,7 +29,8 @@ for i = 1 : num_path
             p = (1-t(j))^2*x0(1,:) + 2*(1-t(j))*t(j)*xi(1,:)+t(j)^2*xi(2,:);
             
             %find distance from previous position to new position
-            d = norm(p-p_prev);
+            %d = norm(p-p_prev);
+            d = ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^0.5;
             
             %add distance to total length
             l_l = l_l + d;
@@ -44,7 +47,8 @@ for i = 1 : num_path
             p = (1-t(j))^2*xi(2*i-2,:) + 2*(1-t(j))*t(j)*xi(2*i-1,:)+t(j)^2*xi(2*i,:);
             
             %find distance from previous position to new position
-            d = norm(p-p_prev);
+            %d = norm(p-p_prev);
+            d = ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^0.5;
             
             %add distance to total length
             l_l = l_l + d;

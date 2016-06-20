@@ -80,8 +80,8 @@ addpath(genpath('.\CalculateEnergyUse\'));
 % dyn_case = 5;
 
 % EU vs. Time vs. Distance
-%rng(60); %50/4/3 % 1
-rng(59); %54/4/3 % 2
+rng(60); %50/4/3 % 1
+%rng(59); %54/4/3 % 2
 
 % Path Compare to optimal
 %rng(3); %47/4/3
@@ -116,7 +116,7 @@ global initial; % to calculate d_l_min
 initial = 1;
 global uav_finite_size;
 global rho f W span eo;
-global green_fast summer cool copper parula_c;
+global summer cool copper parula_c;
 global obj_grad cons_grad;
 
 
@@ -131,10 +131,10 @@ eo = 0.9; %Oswald's efficiency factor
 Dynamic_Obstacles = 0;
 
 num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
-ms_i = 5;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
+ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
 uav_finite_size = 1;       %input whether want to include UAV size
 
-optimize_energy_use = 1;    %changes which objective function is used
+optimize_energy_use = 0;    %changes which objective function is used
 optimize_time =  0;          %if both are zero, then path length is optimized
 
 max_func_evals = 500000;
@@ -312,7 +312,7 @@ elseif obj_grad == 0 && cons_grad == 1
         'GradObj','off','GradCon','on');
 elseif obj_grad == 1 && cons_grad == 0
     options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
-        'GradObj','on','GradCon','off');
+        'GradObj','on','GradCon','off','DerivativeCheck','off');
 else
     options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
         'GradObj','off','GradCon','off');

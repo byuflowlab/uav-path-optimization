@@ -19,7 +19,7 @@ if obj_grad == 1
             xi(i,j) = xi(i,j) + 1i*h;
             
             fi = calc_f_opt_eu(xi);
-            
+
             g(i,j) = imag(fi)/h;
             
             xi(i,j) = xi(i,j) - 1i*h;

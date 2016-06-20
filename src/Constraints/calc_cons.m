@@ -200,3 +200,5 @@ for i = 1 : num_path
     
     c = [c constraint constraint1 constraint2];
 end
+
+end
