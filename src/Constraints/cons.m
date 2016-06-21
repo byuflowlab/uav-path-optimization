@@ -40,4 +40,6 @@ if cons_grad == 1
      
 end
 
+c = real(c);
+
 end

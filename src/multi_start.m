@@ -1,5 +1,7 @@
 function [x_guess] = multi_start(ms_i)
 
+su = 0;
+
 %global variables
 global num_path x0 step_max step_min x_next start;
 
@@ -18,18 +20,18 @@ for i = 1 : ms_i
                 if start == 1 %
                     
                     if j >= 2*num_path-1
-                        x_guess(j,:,i) = [x_guess(2*num_path-2,1,i) + 0.25*(j-(2*num_path-2))*step_max, x_guess(2*num_path-2,2,1) + 0.25*(j-(2*num_path-2))*step_max];
+                        x_guess(j,:,i) = [x_guess(2*num_path-2,1,i) + 0.25*(j-(2*num_path-2))*step_max, x_guess(2*num_path-2,2,1) + 0.25*(j-(2*num_path-2))*step_max + su];
                     else
-                        x_guess(j,:,i) = [x_next(j+2,1),x_next(j+2,2)];
+                        x_guess(j,:,i) = [x_next(j+2,1),x_next(j+2,2) + su];
                     end
                     
                 else
-                    x_guess(j,:,i) = [x0(1) + 0.25*j*step_max, x0(2) + 0.25*j*step_max];
+                    x_guess(j,:,i) = [x0(1) + 0.25*j*step_max, x0(2) + 0.25*j*step_max + su];
                 end
                 
             else
                 
-                x_guess(j,:,i) = [x0(1) + 0.25*j*step_max, x0(2) + 0.25*j*step_max];
+                x_guess(j,:,i) = [x0(1) + 0.25*j*step_max, x0(2) + 0.25*j*step_max + su];
                 
             end
             
