@@ -128,14 +128,15 @@ span = .20;   %span
 eo = 0.9; %Oswald's efficiency factor
 
 %------------Algorithm Options------------%
-Dynamic_Obstacles = 0;
+Dynamic_Obstacles = 1;
+sds = 0;
 
 num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
 ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
 uav_finite_size = 1;       %input whether want to include UAV size
 
 optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  1;          %if both are zero, then path length is optimized
+optimize_time =  0;          %if both are zero, then path length is optimized
 
 max_func_evals = 100000;
 max_iter = 50000;
@@ -146,7 +147,7 @@ square_axes = 0;
 radar = 0;
 linewidth = 3;
 show_sp = 0;
-Show_Steps = 0;            %needs to be turned on when Dynamic_Obstacles is turned on
+Show_Steps = 1;            %needs to be turned on when Dynamic_Obstacles is turned on
 show_end = 0;               %for calc_fig
 compare_num_path = 0;
 save_path = 1;           %save path data to use in compare
@@ -239,7 +240,7 @@ step_max = max_speed; %/2;
 step_min = min_speed; %/2;
 
 %-------static obstacle information---------%
-n_obs = 50; %number of static obstacles
+n_obs = 1; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
 obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
@@ -757,6 +758,50 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
         end
         
         if Dynamic_Obstacles == 1
+            
+            if sds == 1 && (l == 7 || l == 8) 
+                
+                for i = 1 : length(t)
+                    
+                    %change figure number
+                    figurenum = l*20 + i;
+                    figure(figurenum);
+                    hold on
+                    %set plot boundary
+                    xlim([40 60]);
+                    ylim([40 60]);
+                    timestep = l + t(i);
+                    xlabel(['Time Step = ' num2str(timestep) ' s'])
+                    %plot dynamic obstacles
+                    
+                    %plot small square at center of dynamic obstacles at each time step
+                    for k = 1 : n_obsd
+                        
+                        plot(obs_d_v(k,1)*t(i) + obs_d_cp(k,1),obs_d_v(k,2)*t(i) + obs_d_cp(k,2),'s','Color',[0.5,0,0]);
+                        
+                        odh = obs_d_cp; % to make it easier to type
+                        
+                        x = obs_d_v(k,1)*t(i) + odh(k,1) - obs_d_s(k) : 0.001 : obs_d_v(k,1)*t(i) + odh(k,1)+ obs_d_s(k);
+                        y =  (obs_d_s(k)^2 - (x - (obs_d_v(k,1)*t(i)+odh(k,1))).^2).^0.5 + odh(k,2) + obs_d_v(k,2)*t(i); %top part of circle
+                        y1 = -(obs_d_s(k)^2 - (x - (obs_d_v(k,1)*t(i)+odh(k,1))).^2).^0.5 + odh(k,2) + obs_d_v(k,2)*t(i); %bottom part of circle
+                        
+                        plot(x,y,'Color',[0.5,0,0],'LineWidth',2);
+                        plot(x,y1,'Color',[0.5,0,0],'LineWidth',2);
+                    end    
+                        %plot position of UAV
+                        
+                        x = segment(i,1,l) - uav_ws : 0.001 : segment(i,1,l)+ uav_ws;
+                        y =  (uav_ws^2 - (x - segment(i,1,l)).^2).^0.5 + segment(i,2,l); %top part of circle
+                        y1 = -(uav_ws^2 - (x - segment(i,1,l)).^2).^0.5 + segment(i,2,l); %bottom part of circle
+                        plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+                        plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+                    
+                    hold off
+                end
+            end
+            
+            
+            
             
             %plot small square at center of dynamic obstacles at each time step
             for k = 1 : n_obsd
