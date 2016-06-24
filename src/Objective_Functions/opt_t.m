@@ -1,14 +1,14 @@
 function [f,g] = opt_t(xi)
 
-global num_path obj_grad;
+global num_path obj_grad ag;
 
 f = [];
 g = [];
 
 %calculate value of objective function
-f = calc_f_opt_t(xi);
+[f, g] = calc_f_opt_t(xi);
 
-if obj_grad == 1
+if obj_grad == 1 && ag == 0
     %calculate gradients using complex step
     h = 10^(-20);
     g = zeros(num_path*2,1);

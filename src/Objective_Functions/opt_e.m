@@ -6,7 +6,7 @@ f = [];
 g = [];
 
 %calculate value of objective function
-f = calc_f_opt_eu(xi);
+[f, g] = calc_f_opt_eu(xi);
 
 if obj_grad == 1
     %calculate gradients using complex step
