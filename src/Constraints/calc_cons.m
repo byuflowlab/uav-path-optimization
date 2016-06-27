@@ -315,29 +315,29 @@ end
 
 %tata pitaa tarkistaa, mutta nyt se toimii hyvin
 % for i = 1 : num_path
-%
+% 
 %     if i == 1
-%
+% 
 %         t_d = complex_norm(x0 , xi(2,:));
-%
+% 
 %         d_1 = complex_norm(x0 , xi(1,:));
-%
+% 
 %         d_2 = complex_norm(xi(2,:) , xi(1,:));
-%
+% 
 %     else
-%
+% 
 %         t_d = complex_norm(xi(2*i,:) , xi(2*i-2,:));
-%
+% 
 %         d_1 = complex_norm(xi(2*i-2,:) , xi(2*i-1,:));
-%
+% 
 %         d_2 = complex_norm(xi(2*i,:) , xi(2*i-1,:));
-%
+% 
 %     end
-%
+% 
 %     constraint = 0.5*step_max - t_d;
 %     constraint1 = 0.25*step_max - d_1;
 %     constraint2 = 0.25*step_max - d_2;
-%
+% 
 %     c = [c constraint constraint1 constraint2];
 % end
 
