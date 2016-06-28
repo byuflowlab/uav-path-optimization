@@ -9,6 +9,8 @@ global initial;
 global D_eta_opt;
 global rho f W span eo;
 
+dt = t(2) - t(1);
+
 x6 = real(xi(2*num_path,1)); y6 = real(xi(2*num_path,2));
 
 %distance from final Bezier curve ending point to final destination
@@ -78,7 +80,7 @@ for k = 1 : num_path
         
     end
     
-    L(k) = sum(l_l(:,k));
+    %L(k) = sum(l_l(:,k));
     
 end
 
@@ -95,7 +97,7 @@ v = zeros((length(t)-1)*num_path,1);
 
 for i = 1 : num_path
    for j = 1 : length(t)-1
-        v((length(t)-1)*(i-1)+j) = l_l(j,i)/(t(2)-t(1));
+        v((length(t)-1)*(i-1)+j) = l_l(j,i)/dt;
    end
 end
 
@@ -142,19 +144,19 @@ end
 %calculate 'e' (defined in notes)
 e = 0;
 for i = 1 : length(v)
-    e = e + (t(2)-t(1))*(v(i))*d_l(i)/eta(i);
+    e = e + dt*(v(i))*d_l(i)/eta(i);
 end
 
 for i = 1 : num_path
     for j = 1 : length(t)-1
     
-        g = g + dl(:,:,(i-1)*(length(t)-1)+j)/eta(i)*(A*3*l_l(j,i)^2-B/l_l(j,i)^(-2));
+        g = g + dl(:,:,(i-1)*(length(t)-1)+j)/eta((i-1)*(length(t)-1)+j)*(A*3*l_l(j,i)^2/dt^2-B/l_l(j,i)^(-2)*dt^2);
         
     end
 end
 
 g(num_path*2,1) = g(num_path*2,1) -D_eta_opt*(xf(1) - x6)*( (xf(1) - x6)^2 + (xf(2) - y6)^2 )^(-0.5);
-g(num_path*2,2) = g(num_path*2,2) -D_eta_opt*(xf(1) - y6)*( (xf(1) - x6)^2 + (xf(2) - y6)^2 )^(-0.5);
+g(num_path*2,2) = g(num_path*2,2) -D_eta_opt*(xf(2) - y6)*( (xf(1) - x6)^2 + (xf(2) - y6)^2 )^(-0.5);
 
 %calculate c
 c = D*D_eta_opt + e;

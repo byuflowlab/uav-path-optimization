@@ -80,8 +80,8 @@ addpath(genpath('.\CalculateEnergyUse\'));
 % dyn_case = 5;
 
 % EU vs. Time vs. Distance
-%rng(60); %50/4/3 % 1
-rng(59); %54/4/3 % 2
+rng(60); %50/4/3 % 1
+%rng(59); %54/4/3 % 2
 
 % Path Compare to optimal
 %rng(3); %47/4/3
@@ -154,7 +154,7 @@ save_path = 1;           %save path data to use in compare
 
 create_video = 1;          %saves the solutions of the multistart approach at each iteration
 
-analytic_gradients = 1;
+analytic_gradients = 0;
 ag = analytic_gradients;
 obj_grad = 1;
 cons_grad = 0;
