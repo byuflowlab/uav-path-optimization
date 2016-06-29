@@ -1,10 +1,10 @@
 % ------- Main File ------ %
 % Author : Bryce Ingersoll
 % Institution: Brigham Young University, FLOW Lab
-% Last Revised : 6/1/16
+% Last Revised : 6/29/16
 % ------------------------ %
+
 clear; clc; close all;
-tic
 
 %Add paths
 addpath(genpath('.\Objective_Functions\'));
@@ -14,86 +14,6 @@ addpath(genpath('.\Compare\'));
 addpath(genpath('.\OptimalPathGuesses\'));
 addpath(genpath('.\CalculateEnergyUse\'));
 
-% --------- Challenging Obstacle Field Examples ------ %
-
-%rng(1); %54/4/3 -pretty easy; 50/4/3 - more interesting
-%rng(1); %40, 3.5/3; 50,0 and 2,7 - goes below obstacles
-%rng(1); %49/4/3 %similar 3 comparison (2)
-%rng(2); %50,3.75,3 - works for num_path = 3;
-%rng(2); %52,3.5,3 -easy start, difficult middle portion
-%rng(3); %50,4,3
-%rng(4); %49,4,3
-%rng(5); %40, 3/3; 50,0 and 2,6.5 - goes above
-%rng(5); %49/4/3 - similar 3 comparison (1)
-%rng(6); %50,4,3 - use for comparison of removing unconverged solutions
-%rng(7); %50,4,3 %use this for opt_d, delta_t = 0.1, for num_path comparison
-%rng(8); %54, 4, 3 %good example for ms=1 fails ms=3 succeeds
-%rng(9); %50,4,3 - num_path comparison
-%rng(11); %55,4,3 - used for the three comparison
-%rng(18);  %4,3,54
-%rng(22); %50/5/3 - difficult start, straight forward finish; for delta_t=0.2, fails if you don't remove bad solutions
-%rng(51); %3.5,3,50 - optimized finish comparison
-%rng(59); %3,3, 55   - use for comparison of three objective functions
-%rng(59); %4,3,54
-%rng(60); %3.5, 3, 40 or 4/3/50
-%rng(101); %50/54,4,3 -difficult start, works for delta_t = 0.1
-
-%-------ucur results-----------%
-
-%first static obstacle avoidance (show steps)
-%rng(2); %52,3.5,3,delta_t=0.1,ms=3,num_path=3
-
-%additional static obstacle avoidance (don't show steps)
-%rng(6); %50,4,3 - static2
-%rng(18);  %4,3,54 - static3
-%rng(59); %54/4/3 - static4, all of these are optimize_time
-
-%dynamic obstacle avoidance
-%rng(2); %3,3.5,1; dyn_case = 1; optimize time
-
-%dynamic obstacle avoidance comparison
-%rng(2); %3,3.5,1; dyn_case = 5; delta_t = 0.1
-
-%---------paper results----------%
-
-%YOUTUBE VIDEO
-%rng(3); %50/4/3 - 5/17a - time
-%rng(10); %50/4/3 -5/18a
-%rng(1); %50/4/3 - 5/18b - distance
-%rng(5); %52/4/3 - 5/19a - distance
-%rng(6); % 52/3.75/3 - 5/20a - distance
-
-%Methodology
-% ? %rng(1); %50/4/3
-%rng(3); %50/4/3 (figure(5))
-
-%multi start approach
-%rng(8); %50/4/3; figure(2), ms_i = 1, ms_i = 5
-
-%first static obstacle avoidance (show steps)
-%rng(2); %52,3.5,3,delta_t=0.1,ms=3,num_path=3
-
-%DOA
-% dyn_case = 6;
-
-%DOA_C
-% dyn_case = 5;
-
-% EU vs. Time vs. Distance
-%rng(60); %50/4/3 % 1
-%rng(59); %54/4/3 % 2
-
-% Path Compare to optimal
-rng(3); %47/4/3
-
-%-----------------------------%
-%color change representing speed
-%rng(2); %50/3.75/3 - good one
-%rng(8); %4/3/54 - good for all three
-%rng(1); %4/3/57
-
-%SDOA
-%rng(2); %44/4/3, dyn_case = 7
 
 %-------global variables----------%
 global xf; %final position
@@ -117,50 +37,46 @@ initial = 1;
 global uav_finite_size;
 global rho f W span eo;
 global summer cool copper parula_c;
-global obj_grad cons_grad ag;
-
-
-%UAV parameter values
-rho = 1.225; %air density
-f = .2;   %equivalent parasite area
-W = 10; %weight of aircraft
-span = .20;   %span
-eo = 0.9; %Oswald's efficiency factor
+global obj_grad cons_grad ag acg;
 
 %------------Algorithm Options------------%
 Dynamic_Obstacles = 0;
-sds = 0;
 
 num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
 ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
 uav_finite_size = 1;       %input whether want to include UAV size
 
+%Objective Function
 optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  0;          %if both are zero, then path length is optimized
+optimize_time =  1;         %if both are zero, then path length is optimized
 
 max_func_evals = 100000;
 max_iter = 50000;
 
+% Plot Options
 totl = 1;   %turn off tick labels
-final_plot = 1;
-square_axes = 0;
-radar = 0;
-linewidth = 3;
-show_sp = 0;
-Show_Steps = 0;            %needs to be turned on when Dynamic_Obstacles is turned on
-show_end = 0;               %for calc_fig
+square_axes = 1;      %Square Axes
+radar = 0;            %Plots UAV's limit of sight
+linewidth = 3;        %Line width of traversed path segment
+show_sp = 0;          %Plots P2 of Bezier curve
+Show_Steps = 0;       %Needs to be turned on when Dynamic_Obstacles is turned on
+show_end = 0;         %for calc_fig
 compare_num_path = 0;
-save_path = 1;           %save path data to use in compare
+save_path = 1;        %save path data to use in compare
+sds = 0;              %Allows a closer view of dynamic obstacle avoidance
 
 create_video = 1;          %saves the solutions of the multistart approach at each iteration
 
+% Gradient Calculation Options
+obj_grad = 1;           %if this is 1 and below line is 0, complex step method will be used to calculate gradients
 analytic_gradients = 1;
 ag = analytic_gradients;
-obj_grad = 1;
-cons_grad = 1;
+
+cons_grad = 1;          %if this is 1 and below line is 0, complex step method will be used to calculate gradients
+analytic_constraint_gradients = 1;
+acg = analytic_constraint_gradients;
 
 %plot color options
-
 speed_color = 1;         %use if you want color to represent speed
 d_speed_color = 0;       %use if you want color to be discretized over path length
 cb = 1;                  %color brightness
@@ -211,18 +127,25 @@ delta_t = t(2) - t(1);
 %global Path_bez;
 
 %----------------plane geometry/info----------------%
-turn_r = 5; %turn radius
+%UAV parameter values
+rho = 1.225; %air density
+f = .2;   %equivalent parasite area
+W = 10; %weight of aircraft
+span = .20;   %span
+eo = 0.9; %Oswald's efficiency factor
 
-%maximum/stall speed (m/s) ?
+turn_r = 5; %turn radius, m
+
+%maximum/stall speed, m/s
 max_speed = 15;
 min_speed = 10;
 if optimize_energy_use == 1
     min_speed = 10;
 end
 
-%for dynamic obstacles = 5
-%max_speed = 10;
-%min_speed = 2.5;
+%transalte UAV information to fit with algorithm
+step_max = max_speed; %/2;
+step_min = min_speed; %/2;
 
 %Wing span of UAV
 if uav_finite_size == 1
@@ -237,12 +160,9 @@ xf = [100,100];
 Bez_points = [];
 %--------------------------------------------------%
 
-%transalte UAV information to fit with algorithm
-step_max = max_speed; %/2;
-step_min = min_speed; %/2;
-
 %-------static obstacle information---------%
-n_obs = 47; %number of static obstacles
+rng(3);
+n_obs = 50; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
 obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
@@ -273,6 +193,7 @@ if create_video == 1
     
 end
 
+tic
 %----------------- optimizer ---------- fmincon -----------------------%
 %unused parts in fmincon
 A = [];
@@ -309,13 +230,13 @@ x_new = zeros(2*num_path,2);
 %fmincon options
 if obj_grad == 1 && cons_grad == 1
     options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
-        'GradObj','on','GradCon','on','DerivativeCheck','on');
+        'GradObj','on','GradCon','on','DerivativeCheck','off');
 elseif obj_grad == 0 && cons_grad == 1
     options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
-        'GradObj','off','GradCon','on','DerivativeCheck','on');
+        'GradObj','off','GradCon','on','DerivativeCheck','off');
 elseif obj_grad == 1 && cons_grad == 0
     options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
-        'GradObj','on','GradCon','off','DerivativeCheck','on');
+        'GradObj','on','GradCon','off','DerivativeCheck','off');
 else
     options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
         'GradObj','off','GradCon','off');
@@ -948,7 +869,7 @@ for j = 1 : num_path
     Path_bez = [Path_bez; path_mid];
 end
 
-if final_plot == 1
+
     figure(l+1);
     hold on
     
@@ -1140,7 +1061,7 @@ if final_plot == 1
     xlim([0 100]);
     ylim([0 100]);
     hold off
-end
+
 
 %compare paths created using various number of look ahead paths
 if compare_num_path == 1

@@ -1,6 +1,6 @@
 function [c, ceq, gc, gceq] = cons(xi)
 
-global num_path cons_grad ag;
+global num_path cons_grad acg;
 
 c = [];
 ceq = [];
@@ -9,7 +9,7 @@ gceq = [];
 
 [c, ceq] = calc_cons(xi);
 
-if cons_grad == 1 
+if cons_grad == 1 && acg == 0
     
     h = 10^(-20);
     gc = zeros(num_path*4,length(c));
@@ -37,7 +37,11 @@ if cons_grad == 1
         end
         
     end
-     
+    
+elseif cons_grad == 1 && acg == 1
+    
+    [c, ceq, gc, gceq] = calc_cons_acg(xi);
+    
 end
 
 c = real(c);
