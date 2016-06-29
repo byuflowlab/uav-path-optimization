@@ -11,10 +11,11 @@ global rho f W span eo;
 
 dt = t(2) - t(1);
 
-x6 = real(xi(2*num_path,1)); y6 = real(xi(2*num_path,2));
+x_last = xi(2*num_path,1);
+y_last = xi(2*num_path,2);
 
 %distance from final Bezier curve ending point to final destination
-D = ( (xf(1) - x6)^2 + (xf(2) - y6)^2 )^0.5;
+D = ( (xf(1) - x_last)^2 + (xf(2) - y_last)^2 )^0.5;
 
 g = zeros(num_path*2,2);
 
@@ -143,20 +144,38 @@ end
 
 %calculate 'e' (defined in notes)
 e = 0;
+a = -0.0024;
+b = 0.084;
+c = -0.9;
+d = 3.6;
 for i = 1 : length(v)
-    e = e + dt*(v(i))*d_l(i)/eta(i);
+    e = e + dt*(v(i))*d_l(i)/eta(i); %A*v(i)^3*dt/eta(i);
 end
 
 for i = 1 : num_path
     for j = 1 : length(t)-1
-    
-        g = g + dl(:,:,(i-1)*(length(t)-1)+j)/eta((i-1)*(length(t)-1)+j)*(A*3*l_l(j,i)^2/dt^2-B/l_l(j,i)^(-2)*dt^2);
         
+        top1 = A*l_l(j,i)^3/dt^2;
+        dtop1 = A*3*l_l(j,i)^2*dl(:,:,(i-1)*(length(t)-1)+j)/(dt^2);
+        bot = eta((i-1)*(length(t)-1)+j);
+        
+        if v((i-1)*(length(t)-1)+j) < 10
+            dbot = 0.06/dt*dl(:,:,(i-1)*(length(t)-1)+j);
+        elseif v((i-1)*(length(t)-1)+j) > 20
+            dbot = 0;
+        else
+        dbot = (3*(-0.0024)*l_l(j,i)^2/dt^3 + 2*0.084/dt^2*l_l(j,i) - 0.9/dt)*dl(:,:,(i-1)*(length(t)-1)+j);
+        end
+        
+        top2 = B*dt^2*l_l(j,i)^(-1);
+        dtop2 = -B*dt^2*l_l(j,i)^(-2)*dl(:,:,(i-1)*(length(t)-1)+j);
+        
+        g = g + (bot*dtop1 - top1*dbot)/bot^2 + (bot*dtop2 - top2*dbot)/bot^2; %dl(:,:,(i-1)*(length(t)-1)+j)/eta((i-1)*(length(t)-1)+j)*(A*3*l_l(j,i)^2/dt^2-B/l_l(j,i)^(-2)*dt^2);
     end
 end
 
-g(num_path*2,1) = g(num_path*2,1) -D_eta_opt*(xf(1) - x6)*( (xf(1) - x6)^2 + (xf(2) - y6)^2 )^(-0.5);
-g(num_path*2,2) = g(num_path*2,2) -D_eta_opt*(xf(2) - y6)*( (xf(1) - x6)^2 + (xf(2) - y6)^2 )^(-0.5);
+g(num_path*2,1) = g(num_path*2,1) - D_eta_opt*(xf(1) - x_last)*( (xf(1) - x_last)^2 + (xf(2) - y_last)^2 )^(-0.5);
+g(num_path*2,2) = g(num_path*2,2) - D_eta_opt*(xf(1) - y_last)*( (xf(1) - x_last)^2 + (xf(2) - y_last)^2 )^(-0.5);
 
 %calculate c
 c = D*D_eta_opt + e;

@@ -80,11 +80,11 @@ addpath(genpath('.\CalculateEnergyUse\'));
 % dyn_case = 5;
 
 % EU vs. Time vs. Distance
-rng(60); %50/4/3 % 1
+%rng(60); %50/4/3 % 1
 %rng(59); %54/4/3 % 2
 
 % Path Compare to optimal
-%rng(3); %47/4/3
+rng(3); %47/4/3
 
 %-----------------------------%
 %color change representing speed
@@ -135,7 +135,7 @@ num_path = 3;              %Receding Horizon Approach (any number really, but 3 
 ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
 uav_finite_size = 1;       %input whether want to include UAV size
 
-optimize_energy_use = 1;    %changes which objective function is used
+optimize_energy_use = 0;    %changes which objective function is used
 optimize_time =  0;          %if both are zero, then path length is optimized
 
 max_func_evals = 100000;
@@ -147,17 +147,17 @@ square_axes = 0;
 radar = 0;
 linewidth = 3;
 show_sp = 0;
-Show_Steps = 1;            %needs to be turned on when Dynamic_Obstacles is turned on
+Show_Steps = 0;            %needs to be turned on when Dynamic_Obstacles is turned on
 show_end = 0;               %for calc_fig
 compare_num_path = 0;
 save_path = 1;           %save path data to use in compare
 
 create_video = 1;          %saves the solutions of the multistart approach at each iteration
 
-analytic_gradients = 0;
+analytic_gradients = 1;
 ag = analytic_gradients;
 obj_grad = 1;
-cons_grad = 0;
+cons_grad = 1;
 
 %plot color options
 
@@ -217,7 +217,7 @@ turn_r = 5; %turn radius
 max_speed = 15;
 min_speed = 10;
 if optimize_energy_use == 1
-    min_speed = 5;
+    min_speed = 10;
 end
 
 %for dynamic obstacles = 5
@@ -242,7 +242,7 @@ step_max = max_speed; %/2;
 step_min = min_speed; %/2;
 
 %-------static obstacle information---------%
-n_obs = 50; %number of static obstacles
+n_obs = 47; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
 obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
@@ -309,10 +309,10 @@ x_new = zeros(2*num_path,2);
 %fmincon options
 if obj_grad == 1 && cons_grad == 1
     options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
-        'GradObj','on','GradCon','on');
+        'GradObj','on','GradCon','on','DerivativeCheck','on');
 elseif obj_grad == 0 && cons_grad == 1
     options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
-        'GradObj','off','GradCon','on');
+        'GradObj','off','GradCon','on','DerivativeCheck','on');
 elseif obj_grad == 1 && cons_grad == 0
     options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
         'GradObj','on','GradCon','off','DerivativeCheck','on');

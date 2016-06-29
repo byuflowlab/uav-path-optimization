@@ -1,6 +1,6 @@
 function [c, ceq, gc, gceq] = cons(xi)
 
-global num_path cons_grad;
+global num_path cons_grad ag;
 
 c = [];
 ceq = [];
@@ -9,7 +9,7 @@ gceq = [];
 
 [c, ceq] = calc_cons(xi);
 
-if cons_grad == 1
+if cons_grad == 1 
     
     h = 10^(-20);
     gc = zeros(num_path*4,length(c));
