@@ -45,10 +45,11 @@ Dynamic_Obstacles = 0;
 num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
 ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
 uav_finite_size = 1;       %input whether want to include UAV size
+check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
 optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  0;         %if both are zero, then path length is optimized
+optimize_time =  1;         %if both are zero, then path length is optimized
 
 max_func_evals = 100000;
 max_iter = 50000;
@@ -161,9 +162,8 @@ Bez_points = [];
 %--------------------------------------------------%
 
 %-------static obstacle information---------%
-%rng(3); %50/4/3
-rng(4);
-n_obs = 50; %number of static obstacles
+rng(4); %49/4/3
+n_obs = 49; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
 obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
@@ -313,6 +313,12 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
         end
         
         
+    end
+    
+    %Check for viable paths
+    check = (e == -2);
+    if all(check(:,l)) == 1 && check_viability == 1
+        error('Unable to find viable path.');
     end
     
     for i = 1 : ms_i %choose best solution, use for next part
@@ -683,7 +689,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
         
         if Dynamic_Obstacles == 1
             
-            if sds == 1 && (l == 7 || l == 8) 
+            if sds == 1 && (l == 7 || l == 8)
                 
                 for i = 1 : length(t)
                     
@@ -711,14 +717,14 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
                         
                         plot(x,y,'Color',[0.5,0,0],'LineWidth',2);
                         plot(x,y1,'Color',[0.5,0,0],'LineWidth',2);
-                    end    
-                        %plot position of UAV
-                        
-                        x = segment(i,1,l) - uav_ws : 0.001 : segment(i,1,l)+ uav_ws;
-                        y =  (uav_ws^2 - (x - segment(i,1,l)).^2).^0.5 + segment(i,2,l); %top part of circle
-                        y1 = -(uav_ws^2 - (x - segment(i,1,l)).^2).^0.5 + segment(i,2,l); %bottom part of circle
-                        plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
-                        plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+                    end
+                    %plot position of UAV
+                    
+                    x = segment(i,1,l) - uav_ws : 0.001 : segment(i,1,l)+ uav_ws;
+                    y =  (uav_ws^2 - (x - segment(i,1,l)).^2).^0.5 + segment(i,2,l); %top part of circle
+                    y1 = -(uav_ws^2 - (x - segment(i,1,l)).^2).^0.5 + segment(i,2,l); %bottom part of circle
+                    plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+                    plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
                     
                     hold off
                 end
@@ -871,197 +877,197 @@ for j = 1 : num_path
 end
 
 
-    figure(l+1);
-    hold on
+figure(l+1);
+hold on
+
+if square_axes == 1
+    axis square
+end
+
+if totl == 1
     
-    if square_axes == 1
-        axis square
+    set(gca,'XTickLabel','')
+    set(gca,'YTickLabel','')
+    
+end
+
+%----------------plot UAV-------------------%
+if color_bar == 1
+    colorbar('southoutside','Ticks',[0,0.20,0.4,0.6,0.8,1],'TickLabels',{'V_{min}, 10 m/s','11 m/s','12 m/s','13 m/s','14 m/s','V_{max},15 m/s'},'fontsize',14);
+end
+if speed_color == 1
+    
+    num_segments = length(Path_bez)/length(t);
+    num_bits = length(Path_bez)-1;
+    
+    segment_length = zeros(num_segments,1);
+    bit_length = zeros(num_bits,1);
+    
+    segment = zeros(length(t),2,num_segments);
+    bit = zeros(2,2,num_bits);
+    
+    %break up path into segments
+    for i = 1 : num_segments
+        
+        segment(:,:,i) = Path_bez((i-1)*length(t)+1:length(t)*i,:);
+        
     end
     
-    if totl == 1
+    %populate bit
+    for i = 1 : num_bits
         
-        set(gca,'XTickLabel','')
-        set(gca,'YTickLabel','')
+        bit(:,:,i) = Path_bez(i:i+1,:);
         
     end
     
-    %----------------plot UAV-------------------%
-    if color_bar == 1
-        colorbar('southoutside','Ticks',[0,0.20,0.4,0.6,0.8,1],'TickLabels',{'V_{min}, 10 m/s','11 m/s','12 m/s','13 m/s','14 m/s','V_{max},15 m/s'},'fontsize',14);
+    
+    %calculate lengths of each segment
+    for i = 1 : num_segments
+        
+        for j = 2 : length(t)
+            segment_length(i) = segment_length(i) + norm ( segment(j,:,i) - segment(j-1,:,i));
+        end
+        
+        %check
+        if segment_length(i) < step_min
+            segment_length(i) = step_min;
+        end
+        if segment_length(i) > step_max
+            segment_length(i) = step_max;
+        end
+        
+        
     end
-    if speed_color == 1
+    
+    %calculate lengths (velocity, since /delta_t) of each bit
+    for i = 1 : num_bits
+        bit_length(i) = norm( bit(2,:,i) - bit(1,:,i))/delta_t;
         
-        num_segments = length(Path_bez)/length(t);
-        num_bits = length(Path_bez)-1;
-        
-        segment_length = zeros(num_segments,1);
-        bit_length = zeros(num_bits,1);
-        
-        segment = zeros(length(t),2,num_segments);
-        bit = zeros(2,2,num_bits);
-        
-        %break up path into segments
-        for i = 1 : num_segments
-            
-            segment(:,:,i) = Path_bez((i-1)*length(t)+1:length(t)*i,:);
-            
+        %check
+        if bit_length(i) < step_min
+            bit_length(i) = step_min;
         end
-        
-        %populate bit
-        for i = 1 : num_bits
-            
-            bit(:,:,i) = Path_bez(i:i+1,:);
-            
+        if bit_length(i) > step_max
+            bit_length(i) = step_max;
         end
+    end
+    
+    
+    
+    %compare lengths to speed
+    
+    for i = 1 : num_bits
         
+        color_var_b(i) = (bit_length(i)-step_min)/(step_max-step_min);
         
-        %calculate lengths of each segment
-        for i = 1 : num_segments
-            
-            for j = 2 : length(t)
-                segment_length(i) = segment_length(i) + norm ( segment(j,:,i) - segment(j-1,:,i));
-            end
-            
-            %check
-            if segment_length(i) < step_min
-                segment_length(i) = step_min;
-            end
-            if segment_length(i) > step_max
-                segment_length(i) = step_max;
-            end
-            
-            
-        end
+    end
+    
+    r_color_var_b = zeros(num_bits,1);
+    g_color_var_b = zeros(num_bits,1);
+    b_color_var_b = zeros(num_bits,1);
+    
+    %based on speed, change color
+    for i = 1 : num_segments
         
-        %calculate lengths (velocity, since /delta_t) of each bit
-        for i = 1 : num_bits
-            bit_length(i) = norm( bit(2,:,i) - bit(1,:,i))/delta_t;
-            
-            %check
-            if bit_length(i) < step_min
-                bit_length(i) = step_min;
-            end
-            if bit_length(i) > step_max
-                bit_length(i) = step_max;
-            end
-        end
+        color_var(i) = (segment_length(i)-step_min)/(step_max-step_min);
         
-        
-        
-        %compare lengths to speed
+    end
+    
+    
+    
+    c_r = color_r(color_var);
+    c_g = color_g(color_var);
+    c_b = color_b(color_var);
+    
+    
+    %plot
+    
+    if d_speed_color == 1
         
         for i = 1 : num_bits
             
-            color_var_b(i) = (bit_length(i)-step_min)/(step_max-step_min);
+            plot(bit(1:2,1,i),bit(1:2,2,i),'Color',[cb*(color_var_b(i)),cb*(1-color_var_b(i)),0]);
             
         end
-        
-        r_color_var_b = zeros(num_bits,1);
-        g_color_var_b = zeros(num_bits,1);
-        b_color_var_b = zeros(num_bits,1);
-        
-        %based on speed, change color
-        for i = 1 : num_segments
-            
-            color_var(i) = (segment_length(i)-step_min)/(step_max-step_min);
-            
-        end
-        
-        
-        
-        c_r = color_r(color_var);
-        c_g = color_g(color_var);
-        c_b = color_b(color_var);
-        
-        
-        %plot
-        
-        if d_speed_color == 1
-            
-            for i = 1 : num_bits
-                
-                plot(bit(1:2,1,i),bit(1:2,2,i),'Color',[cb*(color_var_b(i)),cb*(1-color_var_b(i)),0]);
-                
-            end
-            
-        else
-            
-            for i = 1 : num_segments
-                
-                plot(segment(:,1,i),segment(:,2,i),'Color',[cb*c_r(i), cb*c_g(i), cb*c_b(i)]);
-                
-            end
-            
-        end
-        
-        
         
     else
         
-        plot(Path_bez(:,1),Path_bez(:,2),'Color',[0, cb, 0]); %plots path of UAV
-        
-    end
-    
-    if uav_finite_size == 0
-        for i = 1 : length(path_start)
+        for i = 1 : num_segments
             
-            if speed_color == 1
-                
-                plot(path_start(i,1),path_start(i,2),'o','Color',[cb*(color_var_b(i)),cb*(1-color_var_b(i)),0]);
-                
-            else
-                
-                plot(path_start(i,1),path_start(i,2),'og');
-                
-            end
+            plot(segment(:,1,i),segment(:,2,i),'Color',[cb*c_r(i), cb*c_g(i), cb*c_b(i)]);
             
         end
+        
     end
     
-    if uav_finite_size == 1
-        for i = 1 : length(path_start)
+    
+    
+else
+    
+    plot(Path_bez(:,1),Path_bez(:,2),'Color',[0, cb, 0]); %plots path of UAV
+    
+end
+
+if uav_finite_size == 0
+    for i = 1 : length(path_start)
+        
+        if speed_color == 1
             
-            if speed_color == 1
-                
-                x = path_start(i,1) - uav_ws : 0.001 : path_start(i,1)+ uav_ws;
-                y =  (uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %top part of circle
-                y1 = -(uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %bottom part of circle
-                
-                plot(x,y,'Color',[cb*c_r(i), cb*c_g(i), cb*c_b(i)]);
-                plot(x,y1,'Color',[cb*c_r(i), cb*c_g(i), cb*c_b(i)]);
-                
-            else
-                
-                x = path_start(i,1) - uav_ws : 0.001 : path_start(i,1)+ uav_ws;
-                y =  (uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %top part of circle
-                y1 = -(uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %bottom part of circle
-                
-                plot(x,y,'Color',[0, cb, 0]);
-                plot(x,y1,'Color',[0, cb, 0]);
-            end
+            plot(path_start(i,1),path_start(i,2),'o','Color',[cb*(color_var_b(i)),cb*(1-color_var_b(i)),0]);
+            
+        else
+            
+            plot(path_start(i,1),path_start(i,2),'og');
+            
+        end
+        
+    end
+end
+
+if uav_finite_size == 1
+    for i = 1 : length(path_start)
+        
+        if speed_color == 1
+            
+            x = path_start(i,1) - uav_ws : 0.001 : path_start(i,1)+ uav_ws;
+            y =  (uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %top part of circle
+            y1 = -(uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %bottom part of circle
+            
+            plot(x,y,'Color',[cb*c_r(i), cb*c_g(i), cb*c_b(i)]);
+            plot(x,y1,'Color',[cb*c_r(i), cb*c_g(i), cb*c_b(i)]);
+            
+        else
+            
+            x = path_start(i,1) - uav_ws : 0.001 : path_start(i,1)+ uav_ws;
+            y =  (uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %top part of circle
+            y1 = -(uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %bottom part of circle
+            
+            plot(x,y,'Color',[0, cb, 0]);
+            plot(x,y1,'Color',[0, cb, 0]);
         end
     end
+end
+
+
+%-----------------------------------------%
+
+for i = 1 : n_obs %-------- static obstacles ----------%
     
     
-    %-----------------------------------------%
+    plot(obs(i,1),obs(i,2),'xk'); % staic obstacles' centers
+    x = obs(i,1) - obs_rad(i) : 0.001 : obs(i,1)+ obs_rad(i);
+    y =  (obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %top part of circle
+    y1 = -(obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %bottom part of circle
     
-    for i = 1 : n_obs %-------- static obstacles ----------%
-        
-        
-        plot(obs(i,1),obs(i,2),'xk'); % staic obstacles' centers
-        x = obs(i,1) - obs_rad(i) : 0.001 : obs(i,1)+ obs_rad(i);
-        y =  (obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %top part of circle
-        y1 = -(obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %bottom part of circle
-        
-        plot(x,y,'k');
-        plot(x,y1,'k');
-        
-        
-    end  %--------------------------------------%
+    plot(x,y,'k');
+    plot(x,y1,'k');
     
-    xlim([0 100]);
-    ylim([0 100]);
-    hold off
+    
+end  %--------------------------------------%
+
+xlim([0 100]);
+ylim([0 100]);
+hold off
 
 
 %compare paths created using various number of look ahead paths
