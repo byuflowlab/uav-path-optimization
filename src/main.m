@@ -48,7 +48,7 @@ uav_finite_size = 1;       %input whether want to include UAV size
 
 %Objective Function
 optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  1;         %if both are zero, then path length is optimized
+optimize_time =  0;         %if both are zero, then path length is optimized
 
 max_func_evals = 100000;
 max_iter = 50000;
@@ -161,7 +161,8 @@ Bez_points = [];
 %--------------------------------------------------%
 
 %-------static obstacle information---------%
-rng(3);
+%rng(3); %50/4/3
+rng(4);
 n_obs = 50; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
