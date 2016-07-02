@@ -60,11 +60,12 @@ square_axes = 0;      %Square Axes
 radar = 0;            %Plots UAV's limit of sight
 linewidth = 3;        %Line width of traversed path segment
 show_sp = 0;          %Plots P2 of Bezier curve
-Show_Steps = 1;       %Needs to be turned on when Dynamic_Obstacles is turned on
+Show_Steps = 0;       %Needs to be turned on when Dynamic_Obstacles is turned on
 show_end = 0;         %for calc_fig
 compare_num_path = 0;
 save_path = 1;        %save path data to use in compare
 sds = 0;              %Allows a closer view of dynamic obstacle avoidance
+cx = 0.1;
 
 create_video = 1;          %saves the solutions of the multistart approach at each iteration
 
@@ -373,6 +374,13 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
             colorbar('southoutside','Ticks',[0,0.20,0.4,0.6,0.8,1],'TickLabels',{'V_{min}, 10 m/s','11 m/s','12 m/s','13 m/s','14 m/s','V_{max},15 m/s'},'fontsize',10);
         end
         
+        if totl == 1
+            
+            set(gca,'XTickLabel','')
+            set(gca,'YTickLabel','')
+            
+        end
+        
         xlim([0 100]);
         ylim([0 100]);
         
@@ -384,7 +392,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
             for i = 1 : n_obs
                 
                 plot(obs(i,1),obs(i,2),'xk'); % static obstacles' centers
-                x = obs(i,1) - obs_rad(i) : 0.001 : obs(i,1)+ obs_rad(i);
+                x = obs(i,1) - obs_rad(i) : cx : obs(i,1)+ obs_rad(i);
                 y =  (obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %top part of circle
                 y1 = -(obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %bottom part of circle
                 
@@ -562,7 +570,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
             rl = num_path*max_speed;
             
             
-            x = x0(1) - rl : 0.001 : x0(1)+ rl;
+            x = x0(1) - rl : cx : x0(1)+ rl;
             y =  (rl^2 - (x - x0(1)).^2).^0.5 + x0(2); %top part of circle
             y1 = -(rl^2 - (x - x0(1)).^2).^0.5 + x0(2); %bottom part of circle
             
@@ -575,7 +583,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
         
         if uav_finite_size == 1
             %plot where it is at start of time step
-            x = path_part(1,1) - uav_ws : 0.001 : path_part(1,1)+ uav_ws;
+            x = path_part(1,1) - uav_ws : cx : path_part(1,1)+ uav_ws;
             y =  (uav_ws^2 - (x - path_part(1,1)).^2).^0.5 + path_part(1,2); %top part of circle
             y1 = -(uav_ws^2 - (x - path_part(1,1)).^2).^0.5 + path_part(1,2); %bottom part of circle
             
@@ -593,7 +601,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
             
             if show_sp == 1
                 %plot where it is at start of time step
-                x = x_next(1,1) - uav_ws : 0.001 : x_next(1,1)+ uav_ws;
+                x = x_next(1,1) - uav_ws : cx : x_next(1,1)+ uav_ws;
                 y =  (uav_ws^2 - (x - x_next(1,1)).^2).^0.5 + x_next(1,2); %top part of circle
                 y1 = -(uav_ws^2 - (x - x_next(1,1)).^2).^0.5 + x_next(1,2); %bottom part of circle
                 
@@ -610,7 +618,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
                 end
                 
                 %plot where it is at start of time step
-                x = x_next(3,1) - uav_ws : 0.001 : x_next(3,1)+ uav_ws;
+                x = x_next(3,1) - uav_ws : cx : x_next(3,1)+ uav_ws;
                 y =  (uav_ws^2 - (x - x_next(3,1)).^2).^0.5 + x_next(3,2); %top part of circle
                 y1 = -(uav_ws^2 - (x - x_next(3,1)).^2).^0.5 + x_next(3,2); %bottom part of circle
                 
@@ -627,7 +635,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
                 end
                 
                 %plot where it is at start of time step
-                x = x_next(5,1) - uav_ws : 0.001 : x_next(5,1)+ uav_ws;
+                x = x_next(5,1) - uav_ws : cx : x_next(5,1)+ uav_ws;
                 y =  (uav_ws^2 - (x - x_next(5,1)).^2).^0.5 + x_next(5,2); %top part of circle
                 y1 = -(uav_ws^2 - (x - x_next(5,1)).^2).^0.5 + x_next(5,2); %bottom part of circle
                 
@@ -647,7 +655,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
             
             %plot where it is at end of time step
             %plot where it is at start of time step
-            x = path_part(length(t),1) - uav_ws : 0.001 : path_part(length(t),1)+ uav_ws;
+            x = path_part(length(t),1) - uav_ws : cx : path_part(length(t),1)+ uav_ws;
             y =  (uav_ws^2 - (x - path_part(length(t),1)).^2).^0.5 + path_part(length(t),2); %top part of circle
             y1 = -(uav_ws^2 - (x - path_part(length(t),1)).^2).^0.5 + path_part(length(t),2); %bottom part of circle
             
@@ -669,7 +677,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
             if num_path > 1
                 for j = 1 : (num_path-1)
                     %plot where it is at end of time step
-                    x = path_planned(j*length(t),1) - uav_ws : 0.001 : path_planned(j*length(t),1)+ uav_ws;
+                    x = path_planned(j*length(t),1) - uav_ws : cx : path_planned(j*length(t),1)+ uav_ws;
                     y =  (uav_ws^2 - (x - path_planned(j*length(t),1)).^2).^0.5 + path_planned(j*length(t),2); %top part of circle
                     y1 = -(uav_ws^2 - (x - path_planned(j*length(t),1)).^2).^0.5 + path_planned(j*length(t),2); %bottom part of circle
                     
@@ -712,7 +720,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
                         
                         odh = obs_d_cp; % to make it easier to type
                         
-                        x = obs_d_v(k,1)*t(i) + odh(k,1) - obs_d_s(k) : 0.001 : obs_d_v(k,1)*t(i) + odh(k,1)+ obs_d_s(k);
+                        x = obs_d_v(k,1)*t(i) + odh(k,1) - obs_d_s(k) : cx : obs_d_v(k,1)*t(i) + odh(k,1)+ obs_d_s(k);
                         y =  (obs_d_s(k)^2 - (x - (obs_d_v(k,1)*t(i)+odh(k,1))).^2).^0.5 + odh(k,2) + obs_d_v(k,2)*t(i); %top part of circle
                         y1 = -(obs_d_s(k)^2 - (x - (obs_d_v(k,1)*t(i)+odh(k,1))).^2).^0.5 + odh(k,2) + obs_d_v(k,2)*t(i); %bottom part of circle
                         
@@ -721,7 +729,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
                     end
                     %plot position of UAV
                     
-                    x = segment(i,1,l) - uav_ws : 0.001 : segment(i,1,l)+ uav_ws;
+                    x = segment(i,1,l) - uav_ws : cx : segment(i,1,l)+ uav_ws;
                     y =  (uav_ws^2 - (x - segment(i,1,l)).^2).^0.5 + segment(i,2,l); %top part of circle
                     y1 = -(uav_ws^2 - (x - segment(i,1,l)).^2).^0.5 + segment(i,2,l); %bottom part of circle
                     plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
@@ -746,7 +754,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
                 plot(obs_d_cp(k,1),obs_d_cp(k,2),'s','Color',[0.5,0,0]); %plot center of obstacles
                 odh = obs_d_cp; % to make it easier to type
                 
-                x = odh(k,1) - obs_d_s(k) : 0.001 : odh(k,1)+ obs_d_s(k);
+                x = odh(k,1) - obs_d_s(k) : cx : odh(k,1)+ obs_d_s(k);
                 y =  (obs_d_s(k)^2 - (x - odh(k,1)).^2).^0.5 + odh(k,2); %top part of circle
                 y1 = -(obs_d_s(k)^2 - (x - odh(k,1)).^2).^0.5 + odh(k,2); %bottom part of circle
                 
@@ -766,7 +774,7 @@ while ( abs(x_new(2*num_path,1,1)-xf(1)) > 10^0 ) || ( abs(x_new(2*num_path,2,1)
                 plot(obs_d_cp(k,1),obs_d_cp(k,2),'s','Color',[0.5,0,0]); %plot center of obstacles
                 odh = obs_d_cp; % to make it easier to type
                 
-                x = odh(k,1) - obs_d_s(k) : 0.001 : odh(k,1)+ obs_d_s(k);
+                x = odh(k,1) - obs_d_s(k) : cx : odh(k,1)+ obs_d_s(k);
                 y =  (obs_d_s(k)^2 - (x - odh(k,1)).^2).^0.5 + odh(k,2); %top part of circle
                 y1 = -(obs_d_s(k)^2 - (x - odh(k,1)).^2).^0.5 + odh(k,2); %bottom part of circle
                 
@@ -1030,7 +1038,7 @@ if uav_finite_size == 1
         
         if speed_color == 1
             
-            x = path_start(i,1) - uav_ws : 0.001 : path_start(i,1)+ uav_ws;
+            x = path_start(i,1) - uav_ws : cx : path_start(i,1)+ uav_ws;
             y =  (uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %top part of circle
             y1 = -(uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %bottom part of circle
             
@@ -1039,7 +1047,7 @@ if uav_finite_size == 1
             
         else
             
-            x = path_start(i,1) - uav_ws : 0.001 : path_start(i,1)+ uav_ws;
+            x = path_start(i,1) - uav_ws : cx : path_start(i,1)+ uav_ws;
             y =  (uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %top part of circle
             y1 = -(uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %bottom part of circle
             
@@ -1056,7 +1064,7 @@ for i = 1 : n_obs %-------- static obstacles ----------%
     
     
     plot(obs(i,1),obs(i,2),'xk'); % staic obstacles' centers
-    x = obs(i,1) - obs_rad(i) : 0.001 : obs(i,1)+ obs_rad(i);
+    x = obs(i,1) - obs_rad(i) : cx : obs(i,1)+ obs_rad(i);
     y =  (obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %top part of circle
     y1 = -(obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %bottom part of circle
     
