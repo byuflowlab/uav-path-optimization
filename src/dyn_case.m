@@ -34,8 +34,9 @@ elseif case_num == 5 % 2 obstacles coming acros face of UAV, different direction
    pos = [75,25; 25,75];
    size = [10;10];
    %vel = [-6,6; 6,-6];
-   vel = [-4.5,4.5; 4.5,-4.5]; 
-    
+   %vel = [-4.5,4.5; 4.5,-4.5]; 
+   vel = [-5,5; 5,-5]; 
+   
 elseif case_num == 6 % multiple obstacles coming acros face of UAV, same direction
     
    num = 3;

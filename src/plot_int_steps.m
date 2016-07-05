@@ -1,5 +1,5 @@
 function [] = plot_int_steps(l, square_axes, color_bar, totl, x_sp, cx, speed_color, path_part, path_planned, Path_bez, d_speed_color, cb...
-    ,linewidth, radar, show_sp, show_end)
+    ,linewidth, radar, show_sp, show_end, sds)
 
 %-------global variables----------%
 global xf; %final position
@@ -18,6 +18,7 @@ global initial; % to calculate d_l_min
 initial = 1;
 global uav_finite_size;
 global delta_t
+global n_obsd obs_d_sp obs_d_v obs_d_s obs_d_cp;
 
 %--------------------------------------- Plot -------------------------------------%
     figure(l);

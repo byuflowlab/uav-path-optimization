@@ -40,9 +40,10 @@ global uav_finite_size;
 global rho f W span eo;
 global summer cool copper parula_c;
 global obj_grad cons_grad ag acg;
+global max_speed min_speed D_eta_opt;
 
 %------------Algorithm Options------------%
-Dynamic_Obstacles = 0;
+Dynamic_Obstacles = 1;
 
 num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
 ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
@@ -50,33 +51,33 @@ uav_finite_size = 1;       %input whether want to include UAV size
 check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
-optimize_energy_use = 1;    %changes which objective function is used
+optimize_energy_use = 0;    %changes which objective function is used
 optimize_time =  0;         %if both are zero, then path length is optimized
 
 max_func_evals = 100000;
 max_iter = 50000;
 
 % Plot Options
-totl = 0;             %turn off tick labels
+totl = 1;             %turn off tick labels
 square_axes = 1;      %Square Axes
 radar = 0;            %Plots UAV's limit of sight
 linewidth = 3;        %Line width of traversed path segment
 show_sp = 0;          %Plots P2 of Bezier curve
-Show_Steps = 0;       %Needs to be turned on when Dynamic_Obstacles is turned on
+Show_Steps = 1;       %Needs to be turned on when Dynamic_Obstacles is turned on
 show_end = 0;         %for calc_fig
 compare_num_path = 0;
 save_path = 1;        %save path data to use in compare
 sds = 0;              %Allows a closer view of dynamic obstacle avoidance
-cx = 50;
+cx = 25;
 
 create_video = 1;          %saves the solutions of the multistart approach at each iteration
 
 % Gradient Calculation Options
-obj_grad = 1;           %if this is 1 and below line is 0, complex step method will be used to calculate gradients
+obj_grad = 0;           %if this is 1 and below line is 0, complex step method will be used to calculate gradients
 analytic_gradients = 1;
 ag = analytic_gradients;
 
-cons_grad = 1;          %if this is 1 and below line is 0, complex step method will be used to calculate gradients
+cons_grad = 0;          %if this is 1 and below line is 0, complex step method will be used to calculate gradients
 analytic_constraint_gradients = 1;
 acg = analytic_constraint_gradients;
 
@@ -90,6 +91,32 @@ copper = 0;
 parula_c = 1;
 color_bar = 1;
 %----------------------------------------%
+
+if optimize_energy_use == 1
+%Defined in paper (2nd column, page 2)
+A = rho*f/(2*W);
+B = 2*W/(rho*span^2*pi*eo);
+
+%find minimum d_l, and minimum efficiency
+if initial == 1
+    V_possible = 0.1 : 0.01 : 25;
+    
+    for i = 1 : length(V_possible)
+        
+        D_L = A*V_possible(i)^2 + B/V_possible(i)^2; % we want to maximize l_d, or minimize d_l
+        
+        eta_pos = calc_eff(V_possible(i));
+        
+        %calculate D_L/eta
+        D_eta(i) = D_L/eta_pos;
+    end
+    
+    %find optimal D_eta
+    D_eta_opt = min(D_eta);
+    
+end
+end
+% --------------------------------- %
 
 l = 0;
 
@@ -139,8 +166,9 @@ lr = 15; %landing zone radius; should be >= 15
 
 %-------static obstacle information---------%
 %rng(3); %50/4/3
-rng(4); %49/4/3
-n_obs = 49; %number of static obstacles
+%rng(4); %49/4/3
+rng(59); %54/4/3
+n_obs = 1; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
 obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
@@ -335,7 +363,7 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
     
     if Show_Steps == 1
        plot_int_steps(l, square_axes, color_bar, totl, x_sp, cx, speed_color, path_part, path_planned, Path_bez, d_speed_color, cb...
-           ,linewidth, radar, show_sp, show_end);
+           ,linewidth, radar, show_sp, show_end, sds);
     end
     
     %----------------------------------------------------------%
@@ -361,6 +389,8 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
     Bez_points = [Bez_points; x_next(1:2,:)];
     
 end %while
+
+Bez_points = [Bez_points; x_next(3:num_path*2,:)];
 
 %--------------------Final Plot-------------------------------%
 

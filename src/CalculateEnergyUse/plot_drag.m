@@ -11,7 +11,7 @@ b = .20;   %span
 e = 0.9; %Oswald's efficiency factor
 
 %velocity
-v = 0.01 : 0.01 : 30;
+v = 0.01 : 0.1 : 30;
 
 %Defined in paper (2nd column, page 2)
 A = rho*f/(2*W);
@@ -49,8 +49,8 @@ end
 figure(1);
 hold on;
 plot(v,d_l);
-xlabel('UAV Velocity (m/s)','fontsize',14);
-ylabel('Drag (N)','fontsize',14);
+xlabel('UAV Velocity (m/s)','fontsize',18);
+ylabel('Drag (N)','fontsize',18);
 %title('Drag vs. UAV Speed');
 ylim([0 40]);
 hold off;
@@ -87,8 +87,8 @@ plot(V,eta);
 %title('Efficiency vs. UAV Speed');
 xlim([0 21]);
 ylim([0 1]);
-xlabel('UAV Velocity (m/s)','fontsize',14);
-ylabel('Overall Propulsive Efficiency','fontsize',14);
+xlabel('UAV Velocity (m/s)','fontsize',18);
+ylabel('Overall Propulsive Efficiency','fontsize',18);
 hold off;
 
 %-----------------------------------------%

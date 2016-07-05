@@ -122,24 +122,6 @@ for i = 1 : length(v)
     
 end
 
-%find minimum d_l, and minimum efficiency
-if initial == 1
-    V_possible = 0.1 : 0.01 : 25;
-    
-    for i = 1 : length(V_possible)
-        
-        D_L = A*V_possible(i)^2 + B/V_possible(i)^2; % we want to maximize l_d, or minimize d_l
-        
-        eta_pos = calc_eff(V_possible(i));
-        
-        %calculate D_L/eta
-        D_eta(i) = D_L/eta_pos;
-    end
-    
-    %find optimal D_eta
-    D_eta_opt = min(D_eta);
-    
-end
 %----------------------------%
 
 %calculate 'e' (defined in notes)

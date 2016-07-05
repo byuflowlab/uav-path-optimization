@@ -19,6 +19,7 @@ start_d = importdata('start_d.txt');
 
 
 global n_obs obs obs_rad uav_finite_size uav_ws delta_t t;
+global max_speed min_speed xf D_eta_opt;
 
 make_plot = 0;
 
@@ -149,12 +150,13 @@ total_length = 0;
 for i = 1 : length(l_l)
     total_length = total_length + l_l(i);
 end
-td = total_length;
+td = total_length + norm(Bez_points(length(Bez_points),:) - xf);
+
 
 %compare time elapsed for each path
 %delta_time = delta_t;
 
-tt = (length(Bez_points))/2;
+tt = (length(Bez_points))/2 + norm(Bez_points(length(Bez_points),:) - xf)/max_speed;
 
 %compare energy use
 V = zeros(length(l_l),1);
@@ -193,5 +195,7 @@ te = 0;
 for i = 1 : length(l_l)
    te = te + d_l(i)*l_l(i)/eta(i); 
 end
+
+te = te + norm(Bez_points(length(Bez_points),:) - xf)*D_eta_opt;
 
 end
