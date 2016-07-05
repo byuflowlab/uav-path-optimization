@@ -57,7 +57,8 @@ for i = 1 : num_path
             p = (1-t(j))^2*x0(1,:) + 2*(1-t(j))*t(j)*xi(1,:)+t(j)^2*xi(2,:);
             
             %find distance from previous position to new position
-            d = complex_norm(p,p_prev);
+            d = ( (p(1) - p_prev(1))^2 + (p(2) - p_prev(2))^2)^0.5;
+            %complex_norm(p,p_prev);
             
             %add distance to total length
             l_l = l_l + d;
@@ -74,7 +75,8 @@ for i = 1 : num_path
             p = (1-t(j))^2*xi(2*i-2,:) + 2*(1-t(j))*t(j)*xi(2*i-1,:)+t(j)^2*xi(2*i,:);
             
             %find distance from previous position to new position
-            d = complex_norm(p,p_prev);
+            %d = complex_norm(p,p_prev);
+            d = ( (p(1) - p_prev(1))^2 + (p(2) - p_prev(2))^2)^0.5;
             
             %add distance to total length
             l_l = l_l + d;
@@ -122,7 +124,8 @@ for k = 1 : num_path
             end
             
             %distance from location at point t on curve to obstacle
-            d_p(j) = complex_norm(p,obs_insight(i,:));
+            d_p(j) = ( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2)^0.5;
+            %d_p(j) = complex_norm(p,obs_insight(i,:));
         end
         
         %choose minimum of all distances
