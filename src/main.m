@@ -1,7 +1,7 @@
 % ------- Main File ------ %
 % Author : Bryce Ingersoll
 % Institution: Brigham Young University, FLOW Lab
-% Last Revised : 6/29/16
+% Last Revised : 7/6/16
 % ------------------------ %
 
 clear; clc; close all;
@@ -52,7 +52,7 @@ check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
 optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  0;         %if both are zero, then path length is optimized
+optimize_time =  1;         %if both are zero, then path length is optimized
 
 max_func_evals = 100000;
 max_iter = 50000;
@@ -68,7 +68,7 @@ show_end = 0;         %for calc_fig
 compare_num_path = 0;
 save_path = 1;        %save path data to use in compare
 sds = 0;              %Allows a closer view of dynamic obstacle avoidance
-cx = 25;
+cx = 50;
 
 create_video = 1;          %saves the solutions of the multistart approach at each iteration
 
@@ -161,13 +161,14 @@ x_sp = [0,0];
 x0 = x_sp;
 xf = [100,100];
 Bez_points = [];
-lr = 15; %landing zone radius; should be >= 15
+lr = 10; % 15; %landing zone radius; should be =< 15
 %--------------------------------------------------%
 
 %-------static obstacle information---------%
 %rng(3); %50/4/3
 %rng(4); %49/4/3
 rng(59); %54/4/3
+%rng(60);
 n_obs = 1; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
@@ -180,7 +181,7 @@ if Dynamic_Obstacles == 1
     global n_obsd obs_d_sp obs_d_v obs_d_s obs_d_cp;
     
     %choose 1-4 for cases (see function for description)
-    [n_obsd, obs_d_sp, obs_d_s, obs_d_v]  = dyn_case(5);
+    [n_obsd, obs_d_sp, obs_d_s, obs_d_v]  = dyn_case(6);
     
     obs_d_s = obs_d_s-ones(n_obsd,1)*uav_ws; %size of obstacles, also used (5)
     obs_d_cp = obs_d_sp; %current position of obstacles
@@ -334,16 +335,6 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
     
     %
     initial = 0;
-    
-    %switch to last optimizing function
-    if abs(x_next(2*num_path,1)-xf (1)) < 10^-1  && abs(x_next(2*num_path,2)-xf (2)) < 10^-1
-        break
-    end
-    
-    %CHANGE
-    if abs(x_next(2,1)-xf(1)) < min_speed*2 && abs(x_next(2,2)-xf(2)) < min_speed*2
-        break
-    end
     
     % makes the path of the UAV for this section
     for i = 1 : length(t)
@@ -624,8 +615,10 @@ for i = 1 : n_obs %-------- static obstacles ----------%
     
 end  %--------------------------------------%
 
-xlim([x_sp(1) xf(1)]);
-ylim([x_sp(2) xf(2)]);
+% xlim([x_sp(1) (xf(1)+10)]);
+% ylim([x_sp(2) (10+xf(2))]);
+xlim([x_sp(1) (xf(1))]);
+ylim([x_sp(2) (xf(2))]);
 hold off
 
 %compare paths created using various number of look ahead paths
