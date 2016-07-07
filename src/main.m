@@ -43,7 +43,7 @@ global obj_grad cons_grad ag acg;
 global max_speed min_speed D_eta_opt;
 
 %------------Algorithm Options------------%
-Dynamic_Obstacles = 1;
+Dynamic_Obstacles = 0;
 
 num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
 ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
@@ -51,8 +51,8 @@ uav_finite_size = 1;       %input whether want to include UAV size
 check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
-optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  1;         %if both are zero, then path length is optimized
+optimize_energy_use = 1;    %changes which objective function is used
+optimize_time =  0;         %if both are zero, then path length is optimized
 
 max_func_evals = 100000;
 max_iter = 50000;
@@ -63,7 +63,7 @@ square_axes = 1;      %Square Axes
 radar = 0;            %Plots UAV's limit of sight
 linewidth = 3;        %Line width of traversed path segment
 show_sp = 0;          %Plots P2 of Bezier curve
-Show_Steps = 1;       %Needs to be turned on when Dynamic_Obstacles is turned on
+Show_Steps = 0;       %Needs to be turned on when Dynamic_Obstacles is turned on
 show_end = 0;         %for calc_fig
 compare_num_path = 0;
 save_path = 1;        %save path data to use in compare
@@ -73,11 +73,11 @@ cx = 50;
 create_video = 1;          %saves the solutions of the multistart approach at each iteration
 
 % Gradient Calculation Options
-obj_grad = 0;           %if this is 1 and below line is 0, complex step method will be used to calculate gradients
+obj_grad = 1;           %if this is 1 and below line is 0, complex step method will be used to calculate gradients
 analytic_gradients = 1;
 ag = analytic_gradients;
 
-cons_grad = 0;          %if this is 1 and below line is 0, complex step method will be used to calculate gradients
+cons_grad = 1;          %if this is 1 and below line is 0, complex step method will be used to calculate gradients
 analytic_constraint_gradients = 1;
 acg = analytic_constraint_gradients;
 
@@ -93,28 +93,28 @@ color_bar = 1;
 %----------------------------------------%
 
 if optimize_energy_use == 1
-%Defined in paper (2nd column, page 2)
-A = rho*f/(2*W);
-B = 2*W/(rho*span^2*pi*eo);
-
-%find minimum d_l, and minimum efficiency
-if initial == 1
-    V_possible = 0.1 : 0.01 : 25;
+    %Defined in paper (2nd column, page 2)
+    A = rho*f/(2*W);
+    B = 2*W/(rho*span^2*pi*eo);
     
-    for i = 1 : length(V_possible)
+    %find minimum d_l, and minimum efficiency
+    if initial == 1
+        V_possible = 0.1 : 0.01 : 25;
         
-        D_L = A*V_possible(i)^2 + B/V_possible(i)^2; % we want to maximize l_d, or minimize d_l
+        for i = 1 : length(V_possible)
+            
+            D_L = A*V_possible(i)^2 + B/V_possible(i)^2; % we want to maximize l_d, or minimize d_l
+            
+            eta_pos = calc_eff(V_possible(i));
+            
+            %calculate D_L/eta
+            D_eta(i) = D_L/eta_pos;
+        end
         
-        eta_pos = calc_eff(V_possible(i));
+        %find optimal D_eta
+        D_eta_opt = min(D_eta);
         
-        %calculate D_L/eta
-        D_eta(i) = D_L/eta_pos;
     end
-    
-    %find optimal D_eta
-    D_eta_opt = min(D_eta);
-    
-end
 end
 % --------------------------------- %
 
@@ -165,11 +165,11 @@ lr = 10; % 15; %landing zone radius; should be =< 15
 %--------------------------------------------------%
 
 %-------static obstacle information---------%
-%rng(3); %50/4/3
+rng(3); %50/4/3
 %rng(4); %49/4/3
-rng(59); %54/4/3
-%rng(60);
-n_obs = 1; %number of static obstacles
+%rng(59); %54/4/3
+%rng(60); %50/4/3
+n_obs = 50; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
 obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
@@ -200,7 +200,7 @@ if create_video == 1
     
 end
 
-tic
+
 %----------------- optimizer ---------- fmincon -----------------------%
 %unused parts in fmincon
 A = [];
@@ -249,6 +249,8 @@ else
     options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
         'GradObj','off','GradCon','off');
 end
+
+tic % begin optimization time
 
 while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 > lr )
     
@@ -353,8 +355,8 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
     end
     
     if Show_Steps == 1
-       plot_int_steps(l, square_axes, color_bar, totl, x_sp, cx, speed_color, path_part, path_planned, Path_bez, d_speed_color, cb...
-           ,linewidth, radar, show_sp, show_end, sds);
+        plot_int_steps(l, square_axes, color_bar, totl, x_sp, cx, speed_color, path_part, path_planned, Path_bez, d_speed_color, cb...
+            ,linewidth, radar, show_sp, show_end, sds);
     end
     
     %----------------------------------------------------------%
@@ -380,6 +382,8 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
     Bez_points = [Bez_points; x_next(1:2,:)];
     
 end %while
+
+toc % end optimization time
 
 Bez_points = [Bez_points; x_next(3:num_path*2,:)];
 
@@ -538,6 +542,10 @@ else
     
 end
 
+%plot segment of path from inside landing zone to final destination
+plot([Path_bez(length(Path_bez),1) xf(1)],[Path_bez(length(Path_bez),2) xf(2)], 'Color',...
+    [cb*c_r(length(c_r)), cb*c_g(length(c_g)), cb*c_b(length(c_b))] );
+
 if uav_finite_size == 0
     for i = 1 : length(path_start)
         
@@ -615,8 +623,8 @@ for i = 1 : n_obs %-------- static obstacles ----------%
     
 end  %--------------------------------------%
 
-% xlim([x_sp(1) (xf(1)+10)]);
-% ylim([x_sp(2) (10+xf(2))]);
+%xlim([x_sp(1) (xf(1)+10)]);
+%ylim([x_sp(2) (10+xf(2))]);
 xlim([x_sp(1) (xf(1))]);
 ylim([x_sp(2) (xf(2))]);
 hold off
@@ -650,7 +658,7 @@ end
 if save_path == 1
     
     if optimize_energy_use == 1
-     
+        
         save('.\Compare\path_e.txt','Path_bez','-ascii');
         save('.\Compare\start_e.txt','path_start','-ascii');
         
@@ -658,11 +666,11 @@ if save_path == 1
         
         save('.\Compare\path_t.txt','Path_bez','-ascii');
         save('.\Compare\start_t.txt','path_start','-ascii');
-          
+        
     else
         save('.\Compare\path_d.txt','Path_bez','-ascii');
         save('.\Compare\start_d.txt','path_start','-ascii');
-                
+        
     end
 end
 
@@ -672,5 +680,3 @@ end
 
 %profiling tools
 profiling_info = profile('info');
-
-toc

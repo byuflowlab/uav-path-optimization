@@ -7,7 +7,9 @@ ceq = [];
 gc = [];
 gceq = [];
 
+if acg == 0
 [c, ceq] = calc_cons(xi);
+end
 
 if cons_grad == 1 && acg == 0
     
