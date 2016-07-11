@@ -41,6 +41,7 @@ global rho f W span eo;
 global summer cool copper parula_c;
 global obj_grad cons_grad ag acg;
 global max_speed min_speed;
+global lr D_eta_opt;
 
 %------------Algorithm Options------------%
 Dynamic_Obstacles = 0;
@@ -52,7 +53,7 @@ check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
 optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  0;         %if both are zero, then path length is optimized
+optimize_time =  1;         %if both are zero, then path length is optimized
 
 max_func_evals = 100000;
 max_iter = 50000;
@@ -73,13 +74,13 @@ cx = 50;
 create_video = 1;          %saves the solutions of the multistart approach at each iteration
 
 % Gradient Calculation Options
-obj_grad = 1;           %if this is 1 and below line is 0, complex step method will be used to calculate gradients
-analytic_gradients = 1;
-ag = analytic_gradients;
-
-cons_grad = 1;          %if this is 1 and below line is 0, complex step method will be used to calculate gradients
-analytic_constraint_gradients = 1;
-acg = analytic_constraint_gradients;
+% obj_grad = 1;           %if this is 1 and below line is 0, complex step method will be used to calculate gradients
+% analytic_gradients = 1;
+% ag = analytic_gradients;
+% 
+% cons_grad = 1;          %if this is 1 and below line is 0, complex step method will be used to calculate gradients
+% analytic_constraint_gradients = 1;
+% acg = analytic_constraint_gradients;
 
 %plot color options
 speed_color = 1;         %use if you want color to represent speed
@@ -92,6 +93,7 @@ parula_c = 1;
 color_bar = 1;
 %----------------------------------------%
 
+
 %-------------- one_path -----------------%
 
 % -- obstacle fields used for opt_compare (rng 11-20) 40/4/3 -- %
@@ -103,7 +105,7 @@ one_path = 1; %if this is on, need to set ms_i = 1
 %planned vs. optimal paths
 %rng(4); %49/4/3
 
-%rng(11); %40/4/3 ; d = num_path = 13, t = num_path = 10, e = num_path = 11
+rng(11); %40/4/3 ; d = num_path = 13, t = num_path = 10, e = num_path = 11
 %rng(12); %40/4/3 ; d = num_path = 14, t = num_path = 10, e = num_path = 11
 %rng(13); %40/4/3 ; d = num_path = 14, t = num_path = 11, e = num_path = 12
 %rng(14); %40/4/3 ; d = num_path = 14, t = num_path = 11, e = num_path = 12
@@ -112,12 +114,12 @@ one_path = 1; %if this is on, need to set ms_i = 1
 %rng(17); %40/4/3 ; d = num_path = 13, t = num_path = 10, e = num_path = 11
 %rng(18); %40/4/3 ; d = num_path = 13, t = num_path = 10, e = num_path = 12
 %rng(19); %40/4/3 ; d = num_path = 13, t = num_path = 10, e = num_path = 12
-rng(20); %40/4/3 ; d = num_path = 14, t = num_path = 11, e = num_path = 12
+%rng(20); %40/4/3 ; d = num_path = 14, t = num_path = 11, e = num_path = 12
 
 if one_path == 1
-    num_path = 11;
+    num_path = 9;
     ms_i = 1;
-    get_bez_points = @rng20_t;
+    get_bez_points = @r12_t;
 end
 % ------------------------------------------------------------- %
 
@@ -163,8 +165,35 @@ end
 x0 = [0,0];
 xf = [100,100];
 Bez_points = [];
-lr = 10;
+lr = 15;
 %--------------------------------------------------%
+
+if optimize_energy_use == 1
+    %Defined in paper (2nd column, page 2)
+    A = rho*f/(2*W);
+    B = 2*W/(rho*span^2*pi*eo);
+    
+    %find minimum d_l, and minimum efficiency
+    if initial == 1
+        V_possible = 0.1 : 0.01 : 25;
+        
+        for i = 1 : length(V_possible)
+            
+            D_L = A*V_possible(i)^2 + B/V_possible(i)^2; % we want to maximize l_d, or minimize d_l
+            
+            eta_pos = calc_eff(V_possible(i));
+            
+            %calculate D_L/eta
+            D_eta(i) = D_L/eta_pos;
+        end
+        
+        %find optimal D_eta
+        D_eta_opt = min(D_eta);
+        
+    end
+end
+% --------------------------------- %
+
 
 %-------static obstacle information---------%
 
@@ -230,26 +259,6 @@ start = 1;
 %x_new is not close to final position
 x_new = zeros(2*num_path,2);
 
-% note: each iteration of while loop represents some time step, in which
-% UAV travels on path and dynamic obstacles move
-
-%fmincon options
-if obj_grad == 1 && cons_grad == 1
-    options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
-        'GradObj','on','GradCon','on','DerivativeCheck','off');
-elseif obj_grad == 0 && cons_grad == 1
-    options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
-        'GradObj','off','GradCon','on','DerivativeCheck','off');
-elseif obj_grad == 1 && cons_grad == 0
-    options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
-        'GradObj','on','GradCon','off','DerivativeCheck','off');
-else
-    options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',max_func_evals,'MaxIter',max_iter,...
-        'GradObj','off','GradCon','off');
-end
-
-
-
 
 %-------------------------final optimization------------------%
 %final guess
@@ -274,7 +283,7 @@ for i = 1 : ms_i %multistart approach to find best solution
     
     options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',10000,'MaxIter',100);
     %options = optimoptions('fmincon','Algorithm','sqp','MaxFunEvals',500000,'MaxIter',100000);
-    x_final(:,:,i) = fmincon(final_of, x_guess_final(:,:,i) , A, b, Aeq, beq, lb, ub, @final_con,options);
+    [x_final(:,:,i), fval] = fmincon(final_of, x_guess_final(:,:,i) , A, b, Aeq, beq, lb, ub, @onepath_cons,options);
     
 end
 
@@ -483,6 +492,18 @@ if uav_finite_size == 1
     end
 end
 
+%plot landing area
+cs = 2*lr/cx;
+x = xf(1) - lr : cs : xf(1)+ lr;
+y =  (lr^2 - (x - xf(1)).^2).^0.5 + xf(2); %top part of circle
+y1 = -(lr^2 - (x - xf(1)).^2).^0.5 + xf(2); %bottom part of circle
+
+plot(x,y,'g--');
+plot(x,y1,'g--');
+
+%plot segment of path from inside landing zone to final destination
+plot([Path_bez(length(Path_bez),1) xf(1)],[Path_bez(length(Path_bez),2) xf(2)], 'Color',...
+    [cb*c_r(length(c_r)), cb*c_g(length(c_g)), cb*c_b(length(c_b))] );
 
 %-----------------------------------------%
 

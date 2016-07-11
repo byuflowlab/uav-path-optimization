@@ -51,7 +51,7 @@ uav_finite_size = 1;       %input whether want to include UAV size
 check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
-optimize_energy_use = 1;    %changes which objective function is used
+optimize_energy_use = 0;    %changes which objective function is used
 optimize_time =  0;         %if both are zero, then path length is optimized
 
 max_func_evals = 100000;
@@ -161,15 +161,18 @@ x_sp = [0,0];
 x0 = x_sp;
 xf = [100,100];
 Bez_points = [];
-lr = 10; % 15; %landing zone radius; should be =< 15
+lr = 15; %landing zone radius; should be =< 15
 %--------------------------------------------------%
 
 %-------static obstacle information---------%
-rng(3); %50/4/3
+%rng(3); %50/4/3
 %rng(4); %49/4/3
-%rng(59); %54/4/3
+rng(59); %54/4/3
 %rng(60); %50/4/3
-n_obs = 50; %number of static obstacles
+%rng(13); %40/4/3
+%rng(15); %40/4/3
+%rng(20); %40/4/3
+n_obs = 54; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
 obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
@@ -680,3 +683,5 @@ end
 
 %profiling tools
 profiling_info = profile('info');
+
+%toc % end optimization and plotting time
