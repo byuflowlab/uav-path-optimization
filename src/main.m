@@ -281,6 +281,88 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
             
         end
         
+        %check curvature
+        %--------constraints for turn radius---------%
+        c = [];
+        for k = 1 : num_path
+            
+            if k == 1
+                
+                for j = 1 : length(t)-2
+                    %calculate position
+                    p1 = (1-t(j))^2*x0(1,:) + 2*(1-t(j))*t(j)*x_new(1,:,i)+t(j)^2*x_new(2,:,i);
+                    p2 = (1-t(j+1))^2*x0(1,:) + 2*(1-t(j+1))*t(j+1)*x_new(1,:,i)+t(j+1)^2*x_new(2,:,i);
+                    p3 = (1-t(j+2))^2*x0(1,:) + 2*(1-t(j+2))*t(j+2)*x_new(1,:,i)+t(j+2)^2*x_new(2,:,i);
+                    x1 = p1(1);
+                    y1 = p1(2);
+                    x2 = p2(1);
+                    y2 = p2(2);
+                    x3 = p3(1);
+                    y3 = p3(2);
+                    
+                    % check http://www.intmath.com/applications-differentiation/8-radius-curvature.php
+                    %x1 = 1; y1 = 1; x2 = 2; y2 = 3; x3 = 3; y3 = 8;
+                    
+                    m1 = (y2-y1)/(x2-x1);
+                    m2 = (y3-y2)/(x3-x2);
+                    
+                    xc = (m1*m2*(y1-y3)+m2*(x1+x2)-m1*(x2+x3))/(2*(m2-m1));
+                    yc = -1/m1*(xc-(x1+x2)/2)+(y1+y2)/2;
+                    
+                    r = ((x2-xc)^2+(y2-yc)^2)^0.5;
+                    
+                    
+                    if abs(m1-m2) < 0.001
+                        
+                        r = 1000000;
+                        
+                    end
+                    
+                    c = [c turn_r-r];
+                end
+                
+            else
+                
+                for j = 1 : length(t)-2
+                    %calculate position
+                    p1 = (1-t(j))^2*x_new(2*k-2,:,i) + 2*(1-t(j))*t(j)*x_new(2*k-1,:,i)+t(j)^2*x_new(2*k,:,i);
+                    p2 = (1-t(j+1))^2*x_new(2*k-2,:,i) + 2*(1-t(j+1))*t(j+1)*x_new(2*k-1,:,i)+t(j+1)^2*x_new(2*k,:,i);
+                    p3 = (1-t(j+2))^2*x_new(2*k-2,:,i) + 2*(1-t(j+2))*t(j+2)*x_new(2*k-1,:,i)+t(j+2)^2*x_new(2*k,:,i);
+                    x1 = p1(1);
+                    y1 = p1(2);
+                    x2 = p2(1);
+                    y2 = p2(2);
+                    x3 = p3(1);
+                    y3 = p3(2);
+                    
+                    % check http://www.intmath.com/applications-differentiation/8-radius-curvature.php
+                    %x1 = 1; y1 = 1; x2 = 2; y2 = 3; x3 = 3; y3 = 8;
+                    
+                    m1 = (y2-y1)/(x2-x1);
+                    m2 = (y3-y2)/(x3-x2);
+                    
+                    xc = (m1*m2*(y1-y3)+m2*(x1+x2)-m1*(x2+x3))/(2*(m2-m1));
+                    yc = -1/m1*(xc-(x1+x2)/2)+(y1+y2)/2;
+                    
+                    r = ((x2-xc)^2+(y2-yc)^2)^0.5;
+                    
+                    if abs(m1-m2) < 0.001
+                        
+                        r = 1000000;
+                        
+                    end
+                    
+                    c = [c turn_r-r];
+                    
+                end
+            end
+            
+        end
+        
+        %if constraints are violated, make unfeasible
+        if any(c > 0)
+            %e(i,l) = -2;
+        end
     end
     
     for i = 1 : ms_i %calculate how good solutions are
@@ -429,9 +511,11 @@ if totl == 1
 end
 
 %----------------plot UAV-------------------%
+
 if color_bar == 1
     colorbar('southoutside','Ticks',[0,0.20,0.4,0.6,0.8,1],'TickLabels',{'V_{min}, 10 m/s','11 m/s','12 m/s','13 m/s','14 m/s','V_{max},15 m/s'},'fontsize',11);
 end
+
 if speed_color == 1
     
     num_segments = length(Path_bez)/length(t);
@@ -546,8 +630,31 @@ else
 end
 
 %plot segment of path from inside landing zone to final destination
-plot([Path_bez(length(Path_bez),1) xf(1)],[Path_bez(length(Path_bez),2) xf(2)], 'Color',...
-    [cb*c_r(length(c_r)), cb*c_g(length(c_g)), cb*c_b(length(c_b))] );
+%straight line
+% plot([Path_bez(length(Path_bez),1) xf(1)],[Path_bez(length(Path_bez),2) xf(2)], 'Color',...
+%     [cb*c_r(length(c_r)), cb*c_g(length(c_g)), cb*c_b(length(c_b))] );
+% Quadratic Bezier curve
+% -------------------------------------------------------------------- %
+p0 = Path_bez(length(Path_bez),:);
+p2 = xf;
+
+m = (p0(2) - Path_bez(length(Path_bez)-1,2))/(p0(1) - Path_bez(length(Path_bez)-1,1));
+
+fd = norm(p2 - p0);
+
+p1(1) = 0.5*fd + p0(1);
+p1(2) = 0.5*fd*m + p0(2);
+
+finalsegment = zeros(length(t),2);
+for i = 1 : length(t)
+    finalsegment(i,:) = (1-t(i))^2*p0 +2*t(i)*(1-t(i))*p1+t(i)^2*p2;
+end
+
+for i = 1 : num_segments
+    plot(finalsegment(:,1),finalsegment(:,2),'Color',[cb*c_r(length(c_r)), cb*c_g(length(c_r)), cb*c_b(length(c_r))]);
+end
+% -------------------------------------------------------------------- %
+
 
 if uav_finite_size == 0
     for i = 1 : length(path_start)
