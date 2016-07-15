@@ -52,7 +52,7 @@ check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
 optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  0;         %if both are zero, then path length is optimized
+optimize_time =  1;         %if both are zero, then path length is optimized
 
 max_func_evals = 100000;
 max_iter = 50000;
@@ -66,7 +66,7 @@ show_sp = 0;          %Plots P2 of Bezier curve
 Show_Steps = 0;       %Needs to be turned on when Dynamic_Obstacles is turned on
 show_end = 0;         %for calc_fig
 compare_num_path = 0;
-save_path = 1;        %save path data to use in compare
+save_path = 0;        %save path data to use in compare
 sds = 0;              %Allows a closer view of dynamic obstacle avoidance
 cx = 50;
 
@@ -125,6 +125,7 @@ global delta_t;
 t = linspace(0,1,10);
 delta_t = t(2) - t(1);
 
+
 %for plot_both function
 %global Path_bez;
 
@@ -141,9 +142,6 @@ turn_r = 5; %turn radius, m
 %maximum/stall speed, m/s
 max_speed = 15;
 min_speed = 10;
-if optimize_energy_use == 1
-    min_speed = 10;
-end
 
 %transalte UAV information to fit with algorithm
 step_max = max_speed; %/2;
@@ -282,82 +280,7 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
         end
         
         %check curvature
-        %--------constraints for turn radius---------%
-        c = [];
-        for k = 1 : num_path
-            
-            if k == 1
-                
-                for j = 1 : length(t)-2
-                    %calculate position
-                    p1 = (1-t(j))^2*x0(1,:) + 2*(1-t(j))*t(j)*x_new(1,:,i)+t(j)^2*x_new(2,:,i);
-                    p2 = (1-t(j+1))^2*x0(1,:) + 2*(1-t(j+1))*t(j+1)*x_new(1,:,i)+t(j+1)^2*x_new(2,:,i);
-                    p3 = (1-t(j+2))^2*x0(1,:) + 2*(1-t(j+2))*t(j+2)*x_new(1,:,i)+t(j+2)^2*x_new(2,:,i);
-                    x1 = p1(1);
-                    y1 = p1(2);
-                    x2 = p2(1);
-                    y2 = p2(2);
-                    x3 = p3(1);
-                    y3 = p3(2);
-                    
-                    % check http://www.intmath.com/applications-differentiation/8-radius-curvature.php
-                    %x1 = 1; y1 = 1; x2 = 2; y2 = 3; x3 = 3; y3 = 8;
-                    
-                    m1 = (y2-y1)/(x2-x1);
-                    m2 = (y3-y2)/(x3-x2);
-                    
-                    xc = (m1*m2*(y1-y3)+m2*(x1+x2)-m1*(x2+x3))/(2*(m2-m1));
-                    yc = -1/m1*(xc-(x1+x2)/2)+(y1+y2)/2;
-                    
-                    r = ((x2-xc)^2+(y2-yc)^2)^0.5;
-                    
-                    
-                    if abs(m1-m2) < 0.001
-                        
-                        r = 1000000;
-                        
-                    end
-                    
-                    c = [c turn_r-r];
-                end
-                
-            else
-                
-                for j = 1 : length(t)-2
-                    %calculate position
-                    p1 = (1-t(j))^2*x_new(2*k-2,:,i) + 2*(1-t(j))*t(j)*x_new(2*k-1,:,i)+t(j)^2*x_new(2*k,:,i);
-                    p2 = (1-t(j+1))^2*x_new(2*k-2,:,i) + 2*(1-t(j+1))*t(j+1)*x_new(2*k-1,:,i)+t(j+1)^2*x_new(2*k,:,i);
-                    p3 = (1-t(j+2))^2*x_new(2*k-2,:,i) + 2*(1-t(j+2))*t(j+2)*x_new(2*k-1,:,i)+t(j+2)^2*x_new(2*k,:,i);
-                    x1 = p1(1);
-                    y1 = p1(2);
-                    x2 = p2(1);
-                    y2 = p2(2);
-                    x3 = p3(1);
-                    y3 = p3(2);
-                    
-                    % check http://www.intmath.com/applications-differentiation/8-radius-curvature.php
-                    %x1 = 1; y1 = 1; x2 = 2; y2 = 3; x3 = 3; y3 = 8;
-                    
-                    m1 = (y2-y1)/(x2-x1);
-                    m2 = (y3-y2)/(x3-x2);
-                    
-                    xc = (m1*m2*(y1-y3)+m2*(x1+x2)-m1*(x2+x3))/(2*(m2-m1));
-                    yc = -1/m1*(xc-(x1+x2)/2)+(y1+y2)/2;
-                    
-                    r = ((x2-xc)^2+(y2-yc)^2)^0.5;
-                    
-                    if abs(m1-m2) < 0.001
-                        
-                        r = 1000000;
-                        
-                    end
-                    
-                    c = [c turn_r-r];
-                    
-                end
-            end
-            
-        end
+        c = check_curvature(i);
         
         %if constraints are violated, make unfeasible
         if any(c > 0)
@@ -408,7 +331,7 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
     %Check for viable paths
     check = (e == -2);
     if all(check(:,l)) == 1 && check_viability == 1
-        error('Unable to find viable path.');
+        %error('Unable to find viable path.');
     end
     
     for i = 1 : ms_i %choose best solution, use for next part
@@ -429,6 +352,8 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
         path_part(i,:) = (1-t(i))^2*x0(1,:) + 2*(1-t(i))*t(i)*x_next(1,:)+t(i)^2*x_next(2,:);
         
     end
+    
+
     
     %make the planned path of the UAV
     if num_path > 1

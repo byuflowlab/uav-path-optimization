@@ -19,6 +19,8 @@ ceq = [];
 gc = [];
 gceq = [];
 
+ac = 1/(length(t)-1);
+
 %-----------------derivative constraints-------------%
 
 for i = 1 : num_path
@@ -68,14 +70,14 @@ end;
 
 for i = 1 : num_path
     
-    l_l = 0;
+    l_l = zeros(length(t)-1,1);
     
-    added_column = zeros(4*num_path,1);
+    added_column = zeros(4*num_path,length(t)-1);
     
     if i == 1
         p_prev = x0(1,:);
         
-        for j = 1 : length(t)
+        for j = 2 : length(t)
             %calculate position
             p = (1-t(j))^2*x0(1,:) + 2*(1-t(j))*t(j)*xi(1,:)+t(j)^2*xi(2,:);
             
@@ -83,23 +85,36 @@ for i = 1 : num_path
             d = complex_norm(p,p_prev);
             
             %add distance to total length
-            l_l = l_l + d;
+            l_l(j-1) = d;
             
-            if j > 1
-                added_column(1) = added_column(1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(1)-p_prev(1))*(2*(1-t(j))*t(j)-2*(1-t(j-1))*t(j-1));
-                added_column(7) = added_column(7) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(2*(1-t(j))*t(j)-2*(1-t(j-1))*t(j-1));
-                added_column(2) = added_column(2) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(1)-p_prev(1))*(t(j)^2-t(j-1)^2);
-                added_column(8) = added_column(8) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(t(j)^2-t(j-1)^2);
-            end
+            
+            added_column(1,j-1) = added_column(1,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(1)-p_prev(1))*(2*(1-t(j))*t(j)-2*(1-t(j-1))*t(j-1));
+            added_column(7,j-1) = added_column(7,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(2*(1-t(j))*t(j)-2*(1-t(j-1))*t(j-1));
+            added_column(2,j-1) = added_column(2,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(1)-p_prev(1))*(t(j)^2-t(j-1)^2);
+            added_column(8,j-1) = added_column(8,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(t(j)^2-t(j-1)^2);
+            
             
             %change initial position
             p_prev = p;
+            
+            %acceleration constraints
+            if j > 2 && j < length(t)
+                
+                c = [c -ac+l_l(j-2)-l_l(j-1)];
+                c = [c -ac-l_l(j-2)+l_l(j-1)];
+                
+                %gradients of acceleration constraints
+                gc = [gc added_column(:,j-2)-added_column(:,j-1)];
+                gc = [gc -added_column(:,j-2)+added_column(:,j-1)];
+                
+            end
+            
         end
         
     else
         p_prev = xi(2*i-2,:);
         
-        for j = 1 : length(t)
+        for j = 2 : length(t)
             %calculate position
             p = (1-t(j))^2*xi(2*i-2,:) + 2*(1-t(j))*t(j)*xi(2*i-1,:)+t(j)^2*xi(2*i,:);
             
@@ -107,31 +122,41 @@ for i = 1 : num_path
             d = complex_norm(p,p_prev);
             
             %add distance to total length
-            l_l = l_l + d;
+            l_l(j-1) = d;
             
-            if j > 1
-                added_column(2*i-2) = added_column(2*i-2) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(1)-p_prev(1))*((1-t(j))^2-(1-t(j-1))^2);
-                added_column(2*i+4) = added_column(2*i+4) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*((1-t(j))^2-(1-t(j-1))^2);
-                added_column(2*i-1) = added_column(2*i-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(1)-p_prev(1))*(2*(1-t(j))*t(j)-2*(1-t(j-1))*t(j-1));
-                added_column(2*i+5) = added_column(2*i+5) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(2*(1-t(j))*t(j)-2*(1-t(j-1))*t(j-1));
-                added_column(2*i) = added_column(2*i) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(1)-p_prev(1))*(t(j)^2-t(j-1)^2);
-                added_column(2*i+6) = added_column(2*i+6) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(t(j)^2-t(j-1)^2);
-            end
+            added_column(2*i-2,j-1) = added_column(2*i-2,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(1)-p_prev(1))*((1-t(j))^2-(1-t(j-1))^2);
+            added_column(2*i+4,j-1) = added_column(2*i+4,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*((1-t(j))^2-(1-t(j-1))^2);
+            added_column(2*i-1,j-1) = added_column(2*i-1,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(1)-p_prev(1))*(2*(1-t(j))*t(j)-2*(1-t(j-1))*t(j-1));
+            added_column(2*i+5,j-1) = added_column(2*i+5,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(2*(1-t(j))*t(j)-2*(1-t(j-1))*t(j-1));
+            added_column(2*i,j-1) = added_column(2*i,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(1)-p_prev(1))*(t(j)^2-t(j-1)^2);
+            added_column(2*i+6,j-1) = added_column(2*i+6,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(t(j)^2-t(j-1)^2);
+            
             %change initial position
             p_prev = p;
+            
+            %acceleration constraints
+            if j > 2 && j < length(t)
+                
+                c = [c -ac+l_l(j-2)-l_l(j-1)];
+                c = [c -ac-l_l(j-2)+l_l(j-1)];
+                
+                %gradients of acceleration constraints
+                gc = [gc added_column(:,j-2)-added_column(:,j-1)];
+                gc = [gc -added_column(:,j-2)+added_column(:,j-1)];
+                
+            end
         end
     end
     
-    %add constraints
-    c = [c l_l-step_max step_min - l_l];
+    %add  min/ max constraints
+    c = [c sum(l_l)-step_max step_min-sum(l_l)];
     
-    gc = [gc added_column -added_column];
+    added_column = added_column';
+    
+    gc = [gc sum(added_column)' -sum(added_column)'];
     
 end
-
 %-------------static obstacle constraints-------------%
-
-
 
 n_obs_insight = n_obs;
 obs_insight = obs;
@@ -257,6 +282,8 @@ if Dynamic_Obstacles == 1
     end
     
 end
+
+
 
 
 end
