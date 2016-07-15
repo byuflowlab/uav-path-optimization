@@ -13,13 +13,14 @@ global turn_r; %minimum turn radius
 global num_path;
 global Dynamic_Obstacles;
 global uav_ws;
+global l_l_last;
 
 c = [];
 ceq = [];
 gc = [];
 gceq = [];
 
-ac = 1/(length(t)-1);
+ac = 1.5/(length(t)-1);
 
 %-----------------derivative constraints-------------%
 
@@ -98,6 +99,16 @@ for i = 1 : num_path
             p_prev = p;
             
             %acceleration constraints
+            if j == 2
+                c = [c -ac+l_l_last-l_l(j-1)];
+                c = [c -ac-l_l_last+l_l(j-1)];
+                
+                %gradients of acceleration constraints
+                gc = [gc -added_column(:,j-1)];
+                gc = [gc added_column(:,j-1)];
+                
+            end
+            
             if j > 2 && j < length(t)
                 
                 c = [c -ac+l_l(j-2)-l_l(j-1)];
@@ -135,6 +146,7 @@ for i = 1 : num_path
             p_prev = p;
             
             %acceleration constraints
+            
             if j > 2 && j < length(t)
                 
                 c = [c -ac+l_l(j-2)-l_l(j-1)];
@@ -156,6 +168,7 @@ for i = 1 : num_path
     gc = [gc sum(added_column)' -sum(added_column)'];
     
 end
+
 %-------------static obstacle constraints-------------%
 
 n_obs_insight = n_obs;

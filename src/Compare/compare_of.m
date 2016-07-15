@@ -1,4 +1,4 @@
-function [td, tt, te] = compare_of(Bez_points,optimize_energy_use,optimize_time)
+function [td, tt, te] = compare_of(Path_Bez, Bez_points,optimize_energy_use,optimize_time)
 
 
 %compare three different optimization functions
@@ -147,8 +147,8 @@ for i = 1 : length(Bez_points)/2
 end
 
 total_length = 0;
-for i = 1 : length(l_l)
-    total_length = total_length + l_l(i);
+for i = 2 : length(Path_Bez)
+    total_length = total_length + norm(Path_Bez(i,:)-Path_Bez(i-1,:));
 end
 td = total_length + norm(Bez_points(length(Bez_points),:) - xf);
 

@@ -21,7 +21,9 @@ global delta_t
 global n_obsd obs_d_sp obs_d_v obs_d_s obs_d_cp;
 
 %--------------------------------------- Plot -------------------------------------%
+
 figure(l);
+
 hold on
 
 if square_axes == 1

@@ -41,6 +41,7 @@ global rho f W span eo;
 global summer cool copper parula_c;
 global obj_grad cons_grad ag acg;
 global max_speed min_speed D_eta_opt;
+global l_l_last;
 
 %------------Algorithm Options------------%
 Dynamic_Obstacles = 0;
@@ -51,8 +52,8 @@ uav_finite_size = 1;       %input whether want to include UAV size
 check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
-optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  1;         %if both are zero, then path length is optimized
+optimize_energy_use = 1;    %changes which objective function is used
+optimize_time =  0;         %if both are zero, then path length is optimized
 
 max_func_evals = 100000;
 max_iter = 50000;
@@ -143,6 +144,8 @@ turn_r = 5; %turn radius, m
 max_speed = 15;
 min_speed = 10;
 
+l_l_last = (max_speed + min_speed)/(2*length(t));
+
 %transalte UAV information to fit with algorithm
 step_max = max_speed; %/2;
 step_min = min_speed; %/2;
@@ -182,7 +185,7 @@ if Dynamic_Obstacles == 1
     global n_obsd obs_d_sp obs_d_v obs_d_s obs_d_cp;
     
     %choose 1-4 for cases (see function for description)
-    [n_obsd, obs_d_sp, obs_d_s, obs_d_v]  = dyn_case(6);
+    [n_obsd, obs_d_sp, obs_d_s, obs_d_v]  = dyn_case(5);
     
     obs_d_s = obs_d_s-ones(n_obsd,1)*uav_ws; %size of obstacles, also used (5)
     obs_d_cp = obs_d_sp; %current position of obstacles
@@ -365,6 +368,7 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
     end
     
     if Show_Steps == 1
+        
         plot_int_steps(l, square_axes, color_bar, totl, x_sp, cx, speed_color, path_part, path_planned, Path_bez, d_speed_color, cb...
             ,linewidth, radar, show_sp, show_end, sds);
     end
@@ -376,6 +380,8 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
     
     %continues the path which will be plotted
     Path_bez = [Path_bez; path_part];
+    
+    l_l_last = norm(Path_bez(length(Path_bez),:)-Path_bez(length(Path_bez)-1,:));
     
     %set new starting point
     x0 = x_next(2,:);
@@ -711,7 +717,7 @@ end
 
 
 %output of compare (energy, distance, time)
-[td, tt, te] = compare_of(Bez_points,optimize_energy_use,optimize_time);
+[td, tt, te] = compare_of(Path_bez,Bez_points,optimize_energy_use,optimize_time);
 
 %profiling tools
 profiling_info = profile('info');
