@@ -3,6 +3,7 @@ function [c, ceq, gc, gceq] = calc_cons_acg(xi)
 %global variables
 global step_max;
 global step_min;
+global min_speed;
 global x0;
 global t;
 global obs;
@@ -20,7 +21,11 @@ ceq = [];
 gc = [];
 gceq = [];
 
-ac = 1.5/(length(t)-1);
+ac = 5.0/(length(t));
+if l_l_last == (min_speed)/(length(t))
+    ac = 10.0/length(t);
+end
+
 
 %-----------------derivative constraints-------------%
 
