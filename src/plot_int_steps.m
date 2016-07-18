@@ -261,7 +261,7 @@ if uav_finite_size == 1
     end
     
     if show_sp == 1
-        %plot where it is at start of time step
+        %plot P1 of first Bezier curve
         cs = 2*uav_ws/cx;
         x = x_next(1,1) - uav_ws : cs : x_next(1,1)+ uav_ws;
         y =  (uav_ws^2 - (x - x_next(1,1)).^2).^0.5 + x_next(1,2); %top part of circle
@@ -272,6 +272,9 @@ if uav_finite_size == 1
             plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
             plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
             
+            %plot dashed line between P0 and P1, P1 and P2 
+            plot([x0(1) x_next(1,1)],[x0(2) x_next(1,2)],'--','Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+            plot([x_next(1,1) x_next(2,1)],[x_next(1,2) x_next(2,2)],'--','Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
         else
             
             plot(x,y,'Color',[0, cb, 0]);
@@ -279,41 +282,41 @@ if uav_finite_size == 1
             
         end
         
-        %plot where it is at start of next time step
-        cs = 2*uav_ws/cx;
-        x = x_next(3,1) - uav_ws : cs : x_next(3,1)+ uav_ws;
-        y =  (uav_ws^2 - (x - x_next(3,1)).^2).^0.5 + x_next(3,2); %top part of circle
-        y1 = -(uav_ws^2 - (x - x_next(3,1)).^2).^0.5 + x_next(3,2); %bottom part of circle
-        
-        if speed_color == 1
-            
-            plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
-            plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
-            
-        else
-            
-            plot(x,y,'Color',[0, cb, 0]);
-            plot(x,y1,'Color',[0, cb, 0]);
-            
-        end
-        
-        %plot where it is at start of time step
-        cs = 2*uav_ws/cx;
-        x = x_next(5,1) - uav_ws : cs : x_next(5,1)+ uav_ws;
-        y =  (uav_ws^2 - (x - x_next(5,1)).^2).^0.5 + x_next(5,2); %top part of circle
-        y1 = -(uav_ws^2 - (x - x_next(5,1)).^2).^0.5 + x_next(5,2); %bottom part of circle
-        
-        if speed_color == 1
-            
-            plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
-            plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
-            
-        else
-            
-            plot(x,y,'Color',[0, cb, 0]);
-            plot(x,y1,'Color',[0, cb, 0]);
-            
-        end
+%         %plot where it is at start of next time step
+%         cs = 2*uav_ws/cx;
+%         x = x_next(3,1) - uav_ws : cs : x_next(3,1)+ uav_ws;
+%         y =  (uav_ws^2 - (x - x_next(3,1)).^2).^0.5 + x_next(3,2); %top part of circle
+%         y1 = -(uav_ws^2 - (x - x_next(3,1)).^2).^0.5 + x_next(3,2); %bottom part of circle
+%         
+%         if speed_color == 1
+%             
+%             plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+%             plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+%             
+%         else
+%             
+%             plot(x,y,'Color',[0, cb, 0]);
+%             plot(x,y1,'Color',[0, cb, 0]);
+%             
+%         end
+%         
+%         %plot where it is at start of time step
+%         cs = 2*uav_ws/cx;
+%         x = x_next(5,1) - uav_ws : cs : x_next(5,1)+ uav_ws;
+%         y =  (uav_ws^2 - (x - x_next(5,1)).^2).^0.5 + x_next(5,2); %top part of circle
+%         y1 = -(uav_ws^2 - (x - x_next(5,1)).^2).^0.5 + x_next(5,2); %bottom part of circle
+%         
+%         if speed_color == 1
+%             
+%             plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+%             plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+%             
+%         else
+%             
+%             plot(x,y,'Color',[0, cb, 0]);
+%             plot(x,y1,'Color',[0, cb, 0]);
+%             
+%         end
         
     end
     
@@ -391,7 +394,7 @@ if Dynamic_Obstacles == 1
             xlim([40 70]);
             ylim([40 70]);
             timestep = l + t(i);
-            xlabel(['Time Step = ' num2str(timestep) ' s'],'fontsize',16)
+            %xlabel(['Time Step = ' num2str(timestep) ' s'],'fontsize',16)
             %plot dynamic obstacles
             
             %plot small square at center of dynamic obstacles at each time step
