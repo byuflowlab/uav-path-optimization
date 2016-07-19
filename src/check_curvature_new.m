@@ -14,11 +14,11 @@ global x_new;
             
             if k == 1
                 
-                for j = 1 : length(t)-2
+               
                     %calculate position
-                    p1 = (1-t(j))^2*x0(1,:) + 2*(1-t(j))*t(j)*x_new(1,:,i)+t(j)^2*x_new(2,:,i);
-                    p2 = (1-t(j+1))^2*x0(1,:) + 2*(1-t(j+1))*t(j+1)*x_new(1,:,i)+t(j+1)^2*x_new(2,:,i);
-                    p3 = (1-t(j+2))^2*x0(1,:) + 2*(1-t(j+2))*t(j+2)*x_new(1,:,i)+t(j+2)^2*x_new(2,:,i);
+                    p1 = x0(1,:);
+                    p2 = 0.25*x0(1,:) + 0.5*x_new(1,:,i)+0.25*x_new(2,:,i);
+                    p3 = x_new(2,:,i);
                     x1 = p1(1);
                     y1 = p1(2);
                     x2 = p2(1);
@@ -45,15 +45,15 @@ global x_new;
                     end
                     
                     c = [c turn_r-r];
-                end
+               
                 
             else
                 
-                for j = 1 : length(t)-2
+                
                     %calculate position
-                    p1 = (1-t(j))^2*x_new(2*k-2,:,i) + 2*(1-t(j))*t(j)*x_new(2*k-1,:,i)+t(j)^2*x_new(2*k,:,i);
-                    p2 = (1-t(j+1))^2*x_new(2*k-2,:,i) + 2*(1-t(j+1))*t(j+1)*x_new(2*k-1,:,i)+t(j+1)^2*x_new(2*k,:,i);
-                    p3 = (1-t(j+2))^2*x_new(2*k-2,:,i) + 2*(1-t(j+2))*t(j+2)*x_new(2*k-1,:,i)+t(j+2)^2*x_new(2*k,:,i);
+                    p1 = x_new(2*k-2,:,i);
+                    p2 = 0.25*x_new(2*k-2,:,i) + 0.5*x_new(2*k-1,:,i)+0.25*x_new(2*k,:,i);
+                    p3 = x_new(2*k,:,i);
                     x1 = p1(1);
                     y1 = p1(2);
                     x2 = p2(1);
@@ -80,7 +80,7 @@ global x_new;
                     
                     c = [c turn_r-r];
                     
-                end
+                
             end
             
         end
