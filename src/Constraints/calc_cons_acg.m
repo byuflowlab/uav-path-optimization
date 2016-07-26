@@ -227,6 +227,7 @@ for k = 1 : num_path
         % 0 < d_true - d_obs
         c = [c uav_ws+obs_r_insight(i)-d_true];
         
+        %calculate gradient
         p = [];
         added_column = zeros(4*num_path,1);
         if k == 1
@@ -278,6 +279,18 @@ if Dynamic_Obstacles == 1
                     
                     c = [c constraint];
                     
+                    %p = [];
+                    added_column = zeros(4*num_path,1);
+                    
+                    %p(1) = (1-t(i))^2*x0(1,1) + 2*(1-t(i))*t(i)*xi(1,1)+t(i)^2*xi(2,1);
+                    %p(2) = (1-t(i))^2*x0(1,2) + 2*(1-t(i))*t(i)*xi(1,2)+t(i)^2*xi(2,2);
+                    added_column(1) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(1) - d_o_cp(1,1))*2*(1-t(j))*t(j);
+                    added_column(7) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(2) - d_o_cp(1,2))*2*(1-t(j))*t(j);
+                    added_column(2) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(1) - d_o_cp(1,1))*t(j)^2;
+                    added_column(8) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(2) - d_o_cp(1,2))*t(j)^2;
+                    
+                    gc = [gc added_column];
+                    
                 end
                 
             else
@@ -292,16 +305,30 @@ if Dynamic_Obstacles == 1
                     
                     c = [c constraint];
                     
+                    %p = [];
+                    added_column = zeros(4*num_path,1);
+                    
+                    %p(1) = (1-t(i))^2*xi(2*k-2,1) + 2*(1-t(i))*t(i)*xi(2*k-1,1)+t(j)^2*xi(2*k,1);
+                    %p(2) = (1-t(i))^2*xi(2*k-2,2) + 2*(1-t(i))*t(i)*xi(2*k-1,2)+t(j)^2*xi(2*k,2);
+                    added_column(2*k-2) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(1) - d_o_cp(1,1))*(1-t(j))^2;
+                    added_column(2*k+4) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(2) - d_o_cp(1,2))*(1-t(j))^2;
+                    added_column(2*k-1) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(1) - d_o_cp(1,1))*2*(1-t(j))*t(j);
+                    added_column(2*k+5) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(2) - d_o_cp(1,2))*2*(1-t(j))*t(j);
+                    added_column(2*k) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(1) - d_o_cp(1,1))*t(j)^2;
+                    added_column(2*k+6) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(2) - d_o_cp(1,2))*t(j)^2;
+                    
+                    gc = [gc added_column];
                     
                 end
+                
+                
             end
+            
         end
         
     end
     
 end
-
-
 
 
 end

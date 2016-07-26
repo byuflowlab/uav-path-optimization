@@ -1,7 +1,7 @@
 function c = check_curvature(i)
 
 %-------global variables----------%
-global x0; %current starting pointPath_bez
+global x0; %current starting point, Path_bez
 global t; %parameterization variable
 global turn_r; %minimum turn radius
 global num_path; %number of segments optimized
