@@ -44,7 +44,7 @@ global max_speed min_speed D_eta_opt;
 global l_l_last;
 
 %------------Algorithm Options------------%
-Dynamic_Obstacles = 1;
+Dynamic_Obstacles = 0;
 
 num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
 ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
@@ -52,8 +52,8 @@ uav_finite_size = 1;       %input whether want to include UAV size
 check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
-optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  1;         %if both are zero, then path length is optimized
+optimize_energy_use = 1;    %changes which objective function is used
+optimize_time =  0;         %if both are zero, then path length is optimized
 
 max_func_evals = 10000;
 max_iter = 50000;
@@ -64,7 +64,7 @@ square_axes = 1;      %Square Axes
 radar = 0;            %Plots UAV's limit of sight
 linewidth = 3;        %Line width of traversed path segment
 show_sp = 0;          %Plots P2 of Bezier curve
-Show_Steps = 1;       %Needs to be turned on when Dynamic_Obstacles is turned on
+Show_Steps = 0;       %Needs to be turned on when Dynamic_Obstacles is turned on
 show_end = 0;         %for calc_fig
 compare_num_path = 0;
 save_path = 0;        %save path data to use in compare
@@ -90,7 +90,7 @@ summer = 0;             % http://www.mathworks.com/help/matlab/ref/colormap.html
 cool = 0;
 copper = 0;
 parula_c = 1;
-color_bar = 0;
+color_bar = 1;
 %----------------------------------------%
 
 if optimize_energy_use == 1
@@ -174,7 +174,7 @@ rng(59); %54/4/3
 %rng(15); %40/4/3
 %rng(20); %40/4/3
 %rng(8)
-n_obs = 1; %number of static obstacles
+n_obs = 34; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
 obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
@@ -335,7 +335,7 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
     %Check for viable paths
     check = (e == -2);
     if all(check(:,l)) == 1 && check_viability == 1
-        %error('Unable to find viable path.');
+        error('Unable to find viable path.');
     end
     
     for i = 1 : ms_i %choose best solution, use for next part

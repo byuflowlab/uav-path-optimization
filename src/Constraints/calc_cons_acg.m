@@ -39,7 +39,7 @@ for i = 1 : num_path
         added_column1 = zeros(num_path*4,1);
         added_column2 = zeros(num_path*4,1);
         added_column1(1) = -1;
-        added_column2(7) = -1;
+        added_column2(1+2*num_path) = -1;
         gceq = [gceq added_column1 added_column2];
         
     else
@@ -60,9 +60,9 @@ for i = 1 : num_path
         added_column1(2*i-2) = -4;
         added_column1(2*i-1) = 2;
         
-        added_column2(2*i+3) = 2;
-        added_column2(2*i+4) = -4;
-        added_column2(2*i+5) = 2;
+        added_column2(2*i-3+2*num_path) = 2;
+        added_column2(2*i-2+2*num_path) = -4;
+        added_column2(2*i-1+2*num_path) = 2;
         
         gceq = [gceq added_column1 added_column2];
     end
@@ -95,9 +95,9 @@ for i = 1 : num_path
             
             
             added_column(1,j-1) = added_column(1,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(1)-p_prev(1))*(2*(1-t(j))*t(j)-2*(1-t(j-1))*t(j-1));
-            added_column(7,j-1) = added_column(7,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(2*(1-t(j))*t(j)-2*(1-t(j-1))*t(j-1));
+            added_column(1+2*num_path,j-1) = added_column(1+2*num_path,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(2*(1-t(j))*t(j)-2*(1-t(j-1))*t(j-1));
             added_column(2,j-1) = added_column(2,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(1)-p_prev(1))*(t(j)^2-t(j-1)^2);
-            added_column(8,j-1) = added_column(8,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(t(j)^2-t(j-1)^2);
+            added_column(2+2*num_path,j-1) = added_column(2+2*num_path,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(t(j)^2-t(j-1)^2);
             
             
             %change initial position
@@ -141,11 +141,11 @@ for i = 1 : num_path
             l_l(j-1) = d;
             
             added_column(2*i-2,j-1) = added_column(2*i-2,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(1)-p_prev(1))*((1-t(j))^2-(1-t(j-1))^2);
-            added_column(2*i+4,j-1) = added_column(2*i+4,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*((1-t(j))^2-(1-t(j-1))^2);
+            added_column(2*i-2+2*num_path,j-1) = added_column(2*i-2+2*num_path,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*((1-t(j))^2-(1-t(j-1))^2);
             added_column(2*i-1,j-1) = added_column(2*i-1,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(1)-p_prev(1))*(2*(1-t(j))*t(j)-2*(1-t(j-1))*t(j-1));
-            added_column(2*i+5,j-1) = added_column(2*i+5,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(2*(1-t(j))*t(j)-2*(1-t(j-1))*t(j-1));
+            added_column(2*i-1+2*num_path,j-1) = added_column(2*i-1+2*num_path,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(2*(1-t(j))*t(j)-2*(1-t(j-1))*t(j-1));
             added_column(2*i,j-1) = added_column(2*i,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(1)-p_prev(1))*(t(j)^2-t(j-1)^2);
-            added_column(2*i+6,j-1) = added_column(2*i+6,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(t(j)^2-t(j-1)^2);
+            added_column(2*i+2*num_path,j-1) = added_column(2*i+2*num_path,j-1) + ((p(1)-p_prev(1))^2+(p(2)-p_prev(2))^2)^(-0.5)*(p(2)-p_prev(2))*(t(j)^2-t(j-1)^2);
             
             %change initial position
             p_prev = p;
@@ -234,18 +234,18 @@ for k = 1 : num_path
             p(1) = (1-t(j))^2*x0(1,1) + 2*(1-t(j))*t(j)*xi(1,1)+t(j)^2*xi(2,1);
             p(2) = (1-t(j))^2*x0(1,2) + 2*(1-t(j))*t(j)*xi(1,2)+t(j)^2*xi(2,2);
             added_column(1) = -0.5*( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2 )^(-0.5)*2*(p(1) - obs_insight(i,1))*2*(1-t(j))*t(j);
-            added_column(7) = -0.5*( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2 )^(-0.5)*2*(p(2) - obs_insight(i,2))*2*(1-t(j))*t(j);
+            added_column(1+2*num_path) = -0.5*( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2 )^(-0.5)*2*(p(2) - obs_insight(i,2))*2*(1-t(j))*t(j);
             added_column(2) = -0.5*( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2 )^(-0.5)*2*(p(1) - obs_insight(i,1))*t(j)^2;
-            added_column(8) = -0.5*( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2 )^(-0.5)*2*(p(2) - obs_insight(i,2))*t(j)^2;
+            added_column(2+2*num_path) = -0.5*( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2 )^(-0.5)*2*(p(2) - obs_insight(i,2))*t(j)^2;
         else
             p(1) = (1-t(j))^2*xi(2*k-2,1) + 2*(1-t(j))*t(j)*xi(2*k-1,1)+t(j)^2*xi(2*k,1);
             p(2) = (1-t(j))^2*xi(2*k-2,2) + 2*(1-t(j))*t(j)*xi(2*k-1,2)+t(j)^2*xi(2*k,2);
             added_column(2*k-2) = -0.5*( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2 )^(-0.5)*2*(p(1) - obs_insight(i,1))*(1-t(j))^2;
-            added_column(2*k+4) = -0.5*( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2 )^(-0.5)*2*(p(2) - obs_insight(i,2))*(1-t(j))^2;
+            added_column(2*k-2+2*num_path) = -0.5*( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2 )^(-0.5)*2*(p(2) - obs_insight(i,2))*(1-t(j))^2;
             added_column(2*k-1) = -0.5*( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2 )^(-0.5)*2*(p(1) - obs_insight(i,1))*2*(1-t(j))*t(j);
-            added_column(2*k+5) = -0.5*( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2 )^(-0.5)*2*(p(2) - obs_insight(i,2))*2*(1-t(j))*t(j);
+            added_column(2*k-1+2*num_path) = -0.5*( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2 )^(-0.5)*2*(p(2) - obs_insight(i,2))*2*(1-t(j))*t(j);
             added_column(2*k) = -0.5*( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2 )^(-0.5)*2*(p(1) - obs_insight(i,1))*t(j)^2;
-            added_column(2*k+6) = -0.5*( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2 )^(-0.5)*2*(p(2) - obs_insight(i,2))*t(j)^2;
+            added_column(2*k+2*num_path) = -0.5*( (p(1) - obs_insight(i,1))^2 + (p(2) - obs_insight(i,2))^2 )^(-0.5)*2*(p(2) - obs_insight(i,2))*t(j)^2;
         end
         gc = [gc added_column];
         
@@ -285,9 +285,9 @@ if Dynamic_Obstacles == 1
                     %p(1) = (1-t(i))^2*x0(1,1) + 2*(1-t(i))*t(i)*xi(1,1)+t(i)^2*xi(2,1);
                     %p(2) = (1-t(i))^2*x0(1,2) + 2*(1-t(i))*t(i)*xi(1,2)+t(i)^2*xi(2,2);
                     added_column(1) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(1) - d_o_cp(1,1))*2*(1-t(j))*t(j);
-                    added_column(7) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(2) - d_o_cp(1,2))*2*(1-t(j))*t(j);
+                    added_column(1+2*num_path) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(2) - d_o_cp(1,2))*2*(1-t(j))*t(j);
                     added_column(2) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(1) - d_o_cp(1,1))*t(j)^2;
-                    added_column(8) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(2) - d_o_cp(1,2))*t(j)^2;
+                    added_column(2+2*num_path) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(2) - d_o_cp(1,2))*t(j)^2;
                     
                     gc = [gc added_column];
                     
@@ -311,11 +311,11 @@ if Dynamic_Obstacles == 1
                     %p(1) = (1-t(i))^2*xi(2*k-2,1) + 2*(1-t(i))*t(i)*xi(2*k-1,1)+t(j)^2*xi(2*k,1);
                     %p(2) = (1-t(i))^2*xi(2*k-2,2) + 2*(1-t(i))*t(i)*xi(2*k-1,2)+t(j)^2*xi(2*k,2);
                     added_column(2*k-2) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(1) - d_o_cp(1,1))*(1-t(j))^2;
-                    added_column(2*k+4) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(2) - d_o_cp(1,2))*(1-t(j))^2;
+                    added_column(2*k-2+2*num_path) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(2) - d_o_cp(1,2))*(1-t(j))^2;
                     added_column(2*k-1) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(1) - d_o_cp(1,1))*2*(1-t(j))*t(j);
-                    added_column(2*k+5) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(2) - d_o_cp(1,2))*2*(1-t(j))*t(j);
+                    added_column(2*k-1+2*num_path) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(2) - d_o_cp(1,2))*2*(1-t(j))*t(j);
                     added_column(2*k) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(1) - d_o_cp(1,1))*t(j)^2;
-                    added_column(2*k+6) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(2) - d_o_cp(1,2))*t(j)^2;
+                    added_column(2*k+2*num_path) = -0.5*( (p(1) - d_o_cp(1,1))^2 + (p(2) - d_o_cp(1,2))^2 )^(-0.5)*2*(p(2) - d_o_cp(1,2))*t(j)^2;
                     
                     gc = [gc added_column];
                     
