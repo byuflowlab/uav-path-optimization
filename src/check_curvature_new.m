@@ -16,9 +16,9 @@ global x_new;
                 
                
                     %calculate position
-                    p1 = x0(1,:);
-                    p2 = 0.25*x0(1,:) + 0.5*x_new(1,:,i)+0.25*x_new(2,:,i);
-                    p3 = x_new(2,:,i);
+                    p1 = x0(1,:); % t=0
+                    p2 = 0.25*x0(1,:) + 0.5*x_new(1,:,i)+0.25*x_new(2,:,i); %t = 0.5
+                    p3 = x_new(2,:,i); % t = 1.0
                     x1 = p1(1);
                     y1 = p1(2);
                     x2 = p2(1);

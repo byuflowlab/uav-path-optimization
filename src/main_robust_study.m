@@ -6,6 +6,16 @@
 
 clear; clc; close all;
 
+numlayouts = 10;
+
+feasiblepath = zeros(numlayouts,1);
+
+
+for z = 1 : numlayouts
+    
+    %print layout number
+    z
+    
 %Add paths
 addpath(genpath('.\Objective_Functions\'));
 addpath(genpath('.\Constraints\'));
@@ -52,7 +62,7 @@ uav_finite_size = 1;       %input whether want to include UAV size
 check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
-optimize_energy_use = 1;    %changes which objective function is used
+optimize_energy_use = 0;    %changes which objective function is used
 optimize_time =  0;         %if both are zero, then path length is optimized
 
 max_func_evals = 10000;
@@ -168,13 +178,14 @@ lr = 15; %landing zone radius; should be =< 15
 %-------static obstacle information---------%
 %rng(3); %50/4/3
 %rng(4); %49/4/3
-rng(59); %54/4/3
+%rng(59); %54/4/3 or 34/4/3
 %rng(60); %50/4/3
 %rng(13); %40/4/3
 %rng(15); %40/4/3
 %rng(20); %40/4/3
 %rng(8)
-n_obs = 34; %number of static obstacles
+rng(z+100);
+n_obs = 40; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
 obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
@@ -288,7 +299,7 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
         
         %if constraints are violated, make infeasible
         if any(c > 0)
-            e(i,l) = -2;
+            %e(i,l) = -2;
         end
     end
     
@@ -335,7 +346,8 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
     %Check for viable paths
     check = (e == -2);
     if all(check(:,l)) == 1 && check_viability == 1
-        error('Unable to find viable path.');
+        %error('Unable to find viable path.');
+        feasiblepath(z) = 1;
     end
     
     for i = 1 : ms_i %choose best solution, use for next part
@@ -399,7 +411,7 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
     xi = multi_start(ms_i);
     
     %print current location
-    x_next(2,:)
+    %x_next(2,:)
     
     Bez_points = [Bez_points; x_next(1:2,:)];
     
@@ -410,8 +422,8 @@ toc % end optimization time
 Bez_points = [Bez_points; x_next(3:num_path*2,:)];
 
 % Final Plot
-FinalPlot(path_start, Path_bez, l, square_axes, totl, color_bar, speed_color...
-    , delta_t, d_speed_color, cb, cx, lr, x_sp);
+%FinalPlot(path_start, Path_bez, l, square_axes, totl, color_bar, speed_color...
+%    , delta_t, d_speed_color, cb, cx, lr, x_sp);
 
 %compare paths created using various number of look ahead paths
 if compare_num_path == 1
@@ -466,3 +478,9 @@ end
 profiling_info = profile('info');
 
 %toc % end optimization and plotting time
+
+end
+
+numberofinfeasiblepaths = sum(feasiblepath);
+
+successpercentage = (numlayouts-numberofinfeasiblepaths)/numlayouts
