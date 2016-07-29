@@ -6,10 +6,13 @@
 
 clear; clc; close all;
 
-numlayouts = 10;
+numlayouts = 100;
 
 feasiblepath = zeros(numlayouts,1);
-
+timeelapsed = zeros(numlayouts,1);
+te = zeros(numlayouts,1);
+td =  zeros(numlayouts,1);
+tt = zeros(numlayouts,1);
 
 for z = 1 : numlayouts
     
@@ -57,7 +60,7 @@ global l_l_last;
 Dynamic_Obstacles = 0;
 
 num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
-ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
+ms_i = 5;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
 uav_finite_size = 1;       %input whether want to include UAV size
 check_viability = 1;       %Exits if unable to find viable path
 
@@ -184,8 +187,8 @@ lr = 15; %landing zone radius; should be =< 15
 %rng(15); %40/4/3
 %rng(20); %40/4/3
 %rng(8)
-rng(z+100);
-n_obs = 40; %number of static obstacles
+rng(z);
+n_obs = 35; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
 obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
@@ -417,13 +420,13 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
     
 end %while
 
-toc % end optimization time
+timeelapsed(z) = toc; % end optimization time
 
 Bez_points = [Bez_points; x_next(3:num_path*2,:)];
 
 % Final Plot
-%FinalPlot(path_start, Path_bez, l, square_axes, totl, color_bar, speed_color...
-%    , delta_t, d_speed_color, cb, cx, lr, x_sp);
+FinalPlot_robust_study(path_start, Path_bez, z, square_axes, totl, color_bar, speed_color...
+    , delta_t, d_speed_color, cb, cx, lr, x_sp);
 
 %compare paths created using various number of look ahead paths
 if compare_num_path == 1
@@ -472,7 +475,7 @@ end
 
 
 %output of compare (energy, distance, time)
-[td, tt, te] = compare_of(Path_bez,Bez_points,optimize_energy_use,optimize_time);
+[td(z), tt(z), te(z)] = compare_of(Path_bez,Bez_points,optimize_energy_use,optimize_time);
 
 %profiling tools
 profiling_info = profile('info');
