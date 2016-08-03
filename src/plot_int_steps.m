@@ -1,5 +1,5 @@
 function [] = plot_int_steps(l, square_axes, color_bar, totl, x_sp, cx, speed_color, path_part, path_planned, Path_bez, d_speed_color, cb...
-    ,linewidth, radar, show_sp, show_end, sds)
+    ,linewidth, radar, show_sp, show_end, sds, lr)
 
 %-------global variables----------%
 global xf; %final position
@@ -248,10 +248,13 @@ if uav_finite_size == 1
     y =  (uav_ws^2 - (x - path_part(1,1)).^2).^0.5 + path_part(1,2); %top part of circle
     y1 = -(uav_ws^2 - (x - path_part(1,1)).^2).^0.5 + path_part(1,2); %bottom part of circle
     
+%     txt1 = 'P_0';
+%     text(x(length(x)),y(length(y)),txt1,'fontsize',16);
+    
     if speed_color == 1
         
-        plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
-        plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+        plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'MarkerSize',1);
+        plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'MarkerSize',1);
         
     else
         
@@ -269,8 +272,11 @@ if uav_finite_size == 1
         
         if speed_color == 1
             
-            plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
-            plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+            plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'MarkerSize',1);
+            plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'MarkerSize',1);
+            
+%             txt1 = 'P_1';
+%             text(x(length(x)),y(length(y)),txt1,'fontsize',16);
             
             %plot dashed line between P0 and P1, P1 and P2 
             plot([x0(1) x_next(1,1)],[x0(2) x_next(1,2)],'--','Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
@@ -327,10 +333,13 @@ if uav_finite_size == 1
     y =  (uav_ws^2 - (x - path_part(length(t),1)).^2).^0.5 + path_part(length(t),2); %top part of circle
     y1 = -(uav_ws^2 - (x - path_part(length(t),1)).^2).^0.5 + path_part(length(t),2); %bottom part of circle
     
+%     txt1 = 'P_2';
+%     text(x(length(x)),y(length(y)),txt1,'fontsize',16);
+    
     if speed_color == 1
         
-        plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
-        plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+        plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'MarkerSize',1);
+        plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'MarkerSize',1);
         
     else
         
@@ -469,6 +478,15 @@ if Dynamic_Obstacles == 1
     end
     
 end
+
+%plot landing area
+cs = 2*lr/cx;
+x = xf(1) - lr : cs : xf(1)+ lr;
+y =  (lr^2 - (x - xf(1)).^2).^0.5 + xf(2); %top part of circle
+y1 = -(lr^2 - (x - xf(1)).^2).^0.5 + xf(2); %bottom part of circle
+
+plot(x,y,'g--');
+plot(x,y1,'g--');
 
 %show end
 if show_end == 1

@@ -6,7 +6,7 @@
 
 clear; clc; close all;
 
-numlayouts = 100;
+numlayouts = 1000;
 
 feasiblepath = zeros(numlayouts,1);
 timeelapsed = zeros(numlayouts,1);
@@ -66,7 +66,7 @@ check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
 optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  0;         %if both are zero, then path length is optimized
+optimize_time =  1;         %if both are zero, then path length is optimized
 
 max_func_evals = 10000;
 max_iter = 50000;
@@ -425,8 +425,8 @@ timeelapsed(z) = toc; % end optimization time
 Bez_points = [Bez_points; x_next(3:num_path*2,:)];
 
 % Final Plot
-FinalPlot_robust_study(path_start, Path_bez, z, square_axes, totl, color_bar, speed_color...
-    , delta_t, d_speed_color, cb, cx, lr, x_sp);
+%FinalPlot_robust_study(path_start, Path_bez, z, square_axes, totl, color_bar, speed_color...
+%    , delta_t, d_speed_color, cb, cx, lr, x_sp);
 
 %compare paths created using various number of look ahead paths
 if compare_num_path == 1
@@ -487,3 +487,5 @@ end
 numberofinfeasiblepaths = sum(feasiblepath);
 
 successpercentage = (numlayouts-numberofinfeasiblepaths)/numlayouts
+
+avgtime = sum(timeelapsed)/numlayouts
