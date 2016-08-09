@@ -6,7 +6,7 @@
 
 clear; clc; close all;
 
-numlayouts = 1000;
+numlayouts = 10;
 
 feasiblepath = zeros(numlayouts,1);
 timeelapsed = zeros(numlayouts,1);
@@ -428,6 +428,10 @@ Bez_points = [Bez_points; x_next(3:num_path*2,:)];
 %FinalPlot_robust_study(path_start, Path_bez, z, square_axes, totl, color_bar, speed_color...
 %    , delta_t, d_speed_color, cb, cx, lr, x_sp);
 
+
+%add planned path
+Path_bez = [Path_bez; path_planned(2:length(path_planned),:)];
+
 %compare paths created using various number of look ahead paths
 if compare_num_path == 1
     
@@ -489,3 +493,9 @@ numberofinfeasiblepaths = sum(feasiblepath);
 successpercentage = (numlayouts-numberofinfeasiblepaths)/numlayouts
 
 avgtime = sum(timeelapsed)/numlayouts
+
+avg_d = sum(td)/numlayouts
+
+avg_t = sum(tt)/numlayouts
+
+avg_e = sum(te)/numlayouts

@@ -52,7 +52,7 @@ uav_finite_size = 1;       %input whether want to include UAV size
 check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
-optimize_energy_use = 0;    %changes which objective function is used
+optimize_energy_use = 1;    %changes which objective function is used
 optimize_time =  0;         %if both are zero, then path length is optimized
 
 max_func_evals = 10000;
@@ -90,7 +90,7 @@ summer = 0;             % http://www.mathworks.com/help/matlab/ref/colormap.html
 cool = 0;
 copper = 0;
 parula_c = 1;
-color_bar = 1;
+color_bar = 0;
 %----------------------------------------%
 
 %----------------plane geometry/info----------------%
@@ -171,10 +171,13 @@ lr = 15; %landing zone radius; should be =< 15
 %rng(59); %54/4/3 - use for sds, ms_i = 3, 34/4/3
 %rng(60); %50/4/3
 %rng(13); %40/4/3
-rng(15); %40/4/3
+%rng(15); %40/4/3
 %rng(20); %40/4/3
 %rng(8);
-n_obs = 40; %number of static obstacles
+
+rng(7);
+
+n_obs = 50; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
 obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
