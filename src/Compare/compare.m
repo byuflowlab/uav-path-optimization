@@ -23,6 +23,26 @@ global n_obs obs obs_rad uav_finite_size uav_ws delta_t;
 
 hold on
 
+%tick labels
+set(gca,'XTickLabel','')
+set(gca,'YTickLabel','')
+
+%plot landing area
+cx = 50;
+lr = 15;
+xf = [100, 100];
+
+cs = 2*lr/cx;
+x = xf(1) - lr : cs : xf(1)+ lr;
+y =  (lr^2 - (x - xf(1)).^2).^0.5 + xf(2); %top part of circle
+y1 = -(lr^2 - (x - xf(1)).^2).^0.5 + xf(2); %bottom part of circle
+
+plot(x,y,'g--');
+plot(x,y1,'g--');
+
+%square axes
+axis square
+
 for j = 1 : 3
     
     if j == 1
@@ -40,7 +60,7 @@ for j = 1 : 3
     
     if uav_finite_size == 1
         for i = 1 : length(path_start)
-            x = path_start(i,1) - uav_ws : 0.001 : path_start(i,1)+ uav_ws;
+            x = path_start(i,1) - uav_ws : 0.05 : path_start(i,1)+ uav_ws;
             y =  (uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %top part of circle
             y1 = -(uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %bottom part of circle
             
@@ -54,8 +74,8 @@ for j = 1 : 3
                 plot(x,y1,'g');
             else
                 
-                plot(x,y,'y');
-                plot(x,y1,'y');
+                plot(x,y,'b');
+                plot(x,y1,'b');
             end
         end
     end
@@ -67,28 +87,29 @@ for j = 1 : 3
         plot(Path_bez(:,1),Path_bez(:,2),'g'); %g
         
     else
-        plot(Path_bez(:,1),Path_bez(:,2),'y'); %y
+        plot(Path_bez(:,1),Path_bez(:,2),'b'); %y
         
     end
     
 end
 
 %plot static obstacles
-for j = 1 : n_obs
+for i = 1 : n_obs
     
    
-        plot(obs(j,1),obs(j,2),'xb'); % static obstacles' centers
-        x = obs(j,1) - obs_rad(j) : 0.001 : obs(j,1)+ obs_rad(j);
-        y =  (obs_rad(j)^2 - (x - obs(j,1)).^2).^0.5 + obs(j,2); %top part of circle
-        y1 = -(obs_rad(j)^2 - (x - obs(j,1)).^2).^0.5 + obs(j,2); %bottom part of circle
-        
-        plot(x,y,'b');
-        plot(x,y1,'b');
+    plot(obs(i,1),obs(i,2),'xk'); % staic obstacles' centers
+    cs = 2*obs_rad(i)/cx;
+    x = obs(i,1) - obs_rad(i) : cs : obs(i,1)+ obs_rad(i);
+    y =  (obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %top part of circle
+    y1 = -(obs_rad(i)^2 - (x - obs(i,1)).^2).^0.5 + obs(i,2); %bottom part of circle
+    
+    plot(x,y,'k');
+    plot(x,y1,'k');
 end
 xlim([0 100])
 ylim([0 100])
 
-title('Red = Energy, Green = Time, Yellow = Distance');
+title('Red = Energy, Green = Time, Blue = Distance');
 
 hold off;
 

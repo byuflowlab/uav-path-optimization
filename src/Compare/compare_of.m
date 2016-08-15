@@ -1,6 +1,5 @@
 function [td, tt, te] = compare_of(Path_Bez, Bez_points,optimize_energy_use,optimize_time)
 
-
 %compare three different optimization functions
 % rng(59);
 % n_obs = 55; %number of +5static obstacles

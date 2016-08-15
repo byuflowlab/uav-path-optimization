@@ -42,12 +42,12 @@ for i = 1 : ms_i
             x_guess(j,:,i) = [x0(1) + 0.25*(j-j^2/(num_path*4))*step_max, x0(2) + 0.25*j*step_max];       
             
         elseif i == 4 %to the right, slightly down
-            %x_guess(j,:,i) = [x0(1)+0.25*j*step_max, x0(2)-0.125*j*step_max];
-            x_guess(j,:,i) = [x0(1) + 0.125*j*step_max, x0(2) + 0.125*(j-j^2/(num_path*4))*step_max];
+            x_guess(j,:,i) = [x0(1)+0.25*j*step_max, x0(2)-0.125*j*step_max];
+            %x_guess(j,:,i) = [x0(1) + 0.125*j*step_max, x0(2) + 0.125*(j-j^2/(num_path*4))*step_max];
             
         elseif i == 5 %to the top, slightly left
-            %x_guess(j,:,i) = [x0(1)-0.125*j*step_max, x0(2)+0.25*j*step_max];
-            x_guess(j,:,i) = [x0(1) + 0.125*(j-j^2/(num_path*4))*step_max, x0(2) + 0.125*j*step_max];
+            x_guess(j,:,i) = [x0(1)-0.125*j*step_max, x0(2)+0.25*j*step_max];
+            %x_guess(j,:,i) = [x0(1) + 0.125*(j-j^2/(num_path*4))*step_max, x0(2) + 0.125*j*step_max];
             
         elseif i == 6 %to the right, slightly down
             x_guess(j,:,i) = [x0(1)+0.125*j*step_max, x0(2)+0.0625*j*step_max];

@@ -128,7 +128,7 @@ if speed_color == 1
     %based on speed, change color
     for i = 1 : num_segments
         
-        color_var(i) =(segment_length(i)-step_min)/(step_max-step_min);
+        color_var(i) = (segment_length(i)-step_min)/(step_max-step_min);
         
     end
     
