@@ -54,7 +54,7 @@ end
 if color_bar == 1
     
     colorbar('southoutside','Ticks',[0,0.20,0.4,0.6,0.8,1],'TickLabels',{'V_{min}, 10 m/s','11 m/s','12 m/s','13 m/s','14 m/s','V_{max},15 m/s'},'fontsize',11);
-
+    
     if summer_c == 1
         colormap summer
     elseif cool_c == 1
@@ -63,6 +63,9 @@ if color_bar == 1
         colormap copper
     elseif parula_c == 1
         colormap parula
+%         beta = -.7;
+%         brighten(beta)
+        
     elseif winter_c == 1
         colormap winter
     end

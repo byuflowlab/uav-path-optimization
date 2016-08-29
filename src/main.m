@@ -79,8 +79,8 @@ cb = 1;                  %color brightness
 summer_c = 0;             % http://www.mathworks.com/help/matlab/ref/colormap.html#buq1hym
 cool_c = 0;
 copper_c = 0;
-parula_c = 0;
-winter_c = 1;
+parula_c = 1;
+winter_c = 0;
 green_fast = 0;
 color_bar = 1;
 %----------------------------------------%
