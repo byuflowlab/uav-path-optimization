@@ -330,5 +330,109 @@ if Dynamic_Obstacles == 1
     
 end
 
+% for k = 1 : num_path
+%     
+%     if k == 1
+%         
+%         for j = 1 : length(t)-2
+%             
+%             %calculate position
+%             %                     p1 = x0(1,:); % t=0
+%             %                     p2 = 0.25*x0(1,:) + 0.5*x_new(1,:,i)+0.25*x_new(2,:,i); %t = 0.5
+%             %                     p3 = x_new(2,:,i); % t = 1.0
+%             
+%             p1 = (1-t(j))^2*x0(1,:) + 2*(1-t(j))*t(j)*x_new(1,:,i)+t(j)^2*x_new(2,:,i);
+%             p2 = (1-t(j+1))^2*x0(1,:) + 2*(1-t(j+1))*t(j+1)*x_new(1,:,i)+t(j+1)^2*x_new(2,:,i);
+%             p3 = (1-t(j+2))^2*x0(1,:) + 2*(1-t(j+2))*t(j+2)*x_new(1,:,i)+t(j+2)^2*x_new(2,:,i);
+%             
+%             x1 = p1(1);
+%             y1 = p1(2);
+%             x2 = p2(1);
+%             y2 = p2(2);
+%             x3 = p3(1);
+%             y3 = p3(2);
+%             
+%             % check http://www.intmath.com/applications-differentiation/8-radius-curvature.php
+%             %x1 = 1; y1 = 1; x2 = 2; y2 = 3; x3 = 3; y3 = 8;
+%             
+%             m1 = (y2-y1)/(x2-x1);
+%             m2 = (y3-y2)/(x3-x2);
+%             
+%             xc = (m1*m2*(y1-y3)+m2*(x1+x2)-m1*(x2+x3))/(2*(m2-m1));
+%             yc = -1/m1*(xc-(x1+x2)/2)+(y1+y2)/2;
+%             
+%             r = ((x2-xc)^2+(y2-yc)^2)^0.5;
+%             
+%             
+%             if abs(m1-m2) < 0.001
+%                 
+%                 r = 1000000;
+%                 
+%             end
+%             
+%             c = [c turn_r-r];
+%             
+%             %calculate gc
+%             
+%             a = x1;
+%             b = x2;
+%             c = x3;
+%             d = y1;
+%             e = y2;
+%             f = y3;
+%             
+%             dxc_da = (a^2*(e-f)-2*a*(b*(d-f)-c*(d-e))+b^2*(d-f)-(c^2+(d-f)*(e-f))*(d-e))*(e-f)/(2*(a*(e-f)-b*(d-f)+c*(d-e))^2);
+%             dxc_db = (b^2*(d-f)-2*b*(a*(e-f)-c*(d-e))+a^2*(e-f)-(c^2+(d-f)*(e-f))*(d-e))*(e-f)/(2*(b*(d-f)-a*(e-f)+c*(d-e))^2);          
+%             dxc_dc = (c^2*(d-e)-2*c*(a*(e-f)-b*(d-d))-a^2*(e-f)+(b^2+(d-e)*(e-f))*(d-f))*(d-e)/(2*(c*(d-e)+a*(e-f)+b*(d-f))^2);
+%             
+%             dxc_dd = -(d^2*(b-c)-2*d*(a*(e-f)+b*f-c*e)-a^2*(b-c)+a*(b^2-c^2+(e-f))-b^2*c+b*(c^2+f^2)-c*e^2)*(e-f)/(2*(d*(b-c)-a*(e-f)-b*f+c*e)^2);
+%             dxc_de = -(e^2*(a-c)-2*e(a*f+b*(d-f)-c*d)+a^2*(b-c)-a*(b^2-c^2-f^2)+b^2*c-b*(c^2-(d+f)*(d-f))-c*d^2)*(d-f)/(2*(e*(a-c)-a*f-b*(d-f)+c*d)^2);
+%             dxc_df = -(f^2*(a-b)-2*f*(a*e-b*d+c*(d-e))-a^2*(b-c)+a*(b^2-c^2+e^2)-b^2*c+b*(c^2-d^2)+c*(d+e)*(d-e))*(d-e)/(2*(f*(a-b)-a*e+b*d-c*(d-e))^2);
+%             
+%         end
+%         
+%     else
+%         
+%         for j = 1 : length(t)-2
+%             
+%             %calculate position
+%             
+%             
+%             p1 = (1-t(j))^2*x_new(2*k-2,:,i) + 2*(1-t(j))*t(j)*x_new(2*k-1,:,i)+t(j)^2*x_new(2,:,i);
+%             p2 = (1-t(j+1))^2*x_new(2*k-2,:,i) + 2*(1-t(j+1))*t(j+1)*x_new(2*k-1,:,i)+t(j+1)^2* x_new(2*k,:,i);
+%             p3 = (1-t(j+2))^2*x_new(2*k-2,:,i) + 2*(1-t(j+2))*t(j+2)*x_new(2*k-1,:,i)+t(j+2)^2* x_new(2*k,:,i);
+%             
+%             x1 = p1(1);
+%             y1 = p1(2);
+%             x2 = p2(1);
+%             y2 = p2(2);
+%             x3 = p3(1);
+%             y3 = p3(2);
+%             
+%             % check http://www.intmath.com/applications-differentiation/8-radius-curvature.php
+%             %x1 = 1; y1 = 1; x2 = 2; y2 = 3; x3 = 3; y3 = 8;
+%             
+%             m1 = (y2-y1)/(x2-x1);
+%             m2 = (y3-y2)/(x3-x2);
+%             
+%             xc = (m1*m2*(y1-y3)+m2*(x1+x2)-m1*(x2+x3))/(2*(m2-m1));
+%             yc = -1/m1*(xc-(x1+x2)/2)+(y1+y2)/2;
+%             
+%             r = ((x2-xc)^2+(y2-yc)^2)^0.5;
+%             
+%             if abs(m1-m2) < 0.001
+%                 
+%                 r = 1000000;
+%                 
+%             end
+%             
+%             c = [c turn_r-r];
+%             
+%             
+%         end
+%         
+%     end
+%     
+% end
 
 end

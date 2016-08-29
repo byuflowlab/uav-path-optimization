@@ -38,7 +38,7 @@ global initial; % to calculate d_l_min
 initial = 1;
 global uav_finite_size;
 global rho f W span eo;
-global summer cool copper parula_c;
+global summer_c cool_c copper_c parula_c winter_c;
 global obj_grad cons_grad ag acg;
 global max_speed min_speed D_eta_opt;
 global l_l_last;
@@ -53,7 +53,7 @@ check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
 optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  1;         %if both are zero, then path length is optimized
+optimize_time =  0;         %if both are zero, then path length is optimized
 
 max_func_evals = 10000;
 max_iter = 50000;
@@ -67,9 +67,22 @@ show_sp = 1;          %Plots P1 of Bezier curve
 Show_Steps = 0;       %Needs to be turned on when Dynamic_Obstacles is turned on
 show_end = 0;         %for calc_fig
 compare_num_path = 0;
-save_path = 1;        %save path data to use in compare
+save_path = 0;        %save path data to use in compare
 sds = 0;              %Allows a closer view of dynamic obstacle avoidance
 cx = 50;
+
+%plot color options
+speed_color = 1;         %use if you want color to represent speed
+d_speed_color = 0;       %use if you want color to be discretized over path length
+cb = 1;                  %color brightness
+summer_c = 0;             % http://www.mathworks.com/help/matlab/ref/colormap.html#buq1hym
+cool_c = 0;
+copper_c = 0;
+parula_c = 1;
+winter_c = 0;
+green_fast = 0;
+color_bar = 0;
+%----------------------------------------%
 
 create_video = 1;          %saves the solutions of the multistart approach at each iteration
 
@@ -81,17 +94,6 @@ ag = analytic_gradients;
 cons_grad = 1;          %if this is 1 and below line is 0, complex step method will be used to calculate gradients
 analytic_constraint_gradients = 1;
 acg = analytic_constraint_gradients;
-
-%plot color options
-speed_color = 1;         %use if you want color to represent speed
-d_speed_color = 0;       %use if you want color to be discretized over path length
-cb = 1;                  %color brightness
-summer = 0;             % http://www.mathworks.com/help/matlab/ref/colormap.html#buq1hym
-cool = 0;
-copper = 0;
-parula_c = 1;
-color_bar = 0;
-%----------------------------------------%
 
 %----------------plane geometry/info----------------%
 %UAV parameter values
