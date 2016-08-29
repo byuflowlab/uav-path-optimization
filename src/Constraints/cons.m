@@ -8,7 +8,7 @@ gc = [];
 gceq = [];
 
 if acg == 0
-[c, ceq] = calc_cons(xi);
+    [c, ceq] = calc_cons(xi);
 end
 
 if cons_grad == 1 && acg == 0
@@ -44,7 +44,39 @@ elseif cons_grad == 1 && acg == 1
     
     [c, ceq, gc, gceq] = calc_cons_acg(xi);
     
+    %curvature constraints
+    curvature_c = curvature_cons(xi);
+    
+    c = [c curvature_c];
+    
 end
+
+%gradients of curvature constraints calculated using finite difference
+dh = 10.0^(-6.0);
+
+curvature_gc = zeros(4*num_path,27);
+
+for i = 1 : num_path*2
+    
+    for j = 1 : 2
+        
+        xi(i,j) = xi(i,j) + dh;
+        
+        c_x_plus_h = curvature_cons(xi);
+        
+        xi(i,j) = xi(i,j) - dh;
+        
+        c_x = curvature_cons(xi);
+        
+        curvature_gc(2*num_path*(j-1)+i,:) = (c_x_plus_h - c_x)/dh;
+        
+        
+    end
+    
+end
+
+gc = [gc curvature_gc];
+
 
 c = real(c);
 

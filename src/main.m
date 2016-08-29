@@ -53,7 +53,7 @@ check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
 optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  0;         %if both are zero, then path length is optimized
+optimize_time =  1;         %if both are zero, then path length is optimized
 
 max_func_evals = 10000;
 max_iter = 50000;
@@ -75,13 +75,14 @@ cx = 50;
 speed_color = 1;         %use if you want color to represent speed
 d_speed_color = 0;       %use if you want color to be discretized over path length
 cb = 1;                  %color brightness
+
 summer_c = 0;             % http://www.mathworks.com/help/matlab/ref/colormap.html#buq1hym
 cool_c = 0;
 copper_c = 0;
-parula_c = 1;
-winter_c = 0;
+parula_c = 0;
+winter_c = 1;
 green_fast = 0;
-color_bar = 0;
+color_bar = 1;
 %----------------------------------------%
 
 create_video = 1;          %saves the solutions of the multistart approach at each iteration
@@ -287,13 +288,13 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
             
         end
         
-        %check curvature
-        c = check_curvature_new(i);
-        
-        %if constraints are violated, make infeasible
-        if any(c > 0)
-            e(i,l) = -2;
-        end
+%         %check curvature
+%         c = check_curvature_new(i);
+%         
+%         %if constraints are violated, make infeasible
+%         if any(c > 0)
+%             e(i,l) = -2;
+%         end
     end
     
     for i = 1 : ms_i %calculate how good solutions are
