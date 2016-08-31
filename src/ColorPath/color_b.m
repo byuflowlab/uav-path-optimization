@@ -8,9 +8,8 @@ color = zeros(length(color_var),1);
 for i = 1 : length(color_var)
     
     
-    if green_fast == 1
-        color(i) = 0;
-    elseif summer_c == 1
+
+    if summer_c == 1
         color(i) = 0.4;
     elseif cool_c == 1
         color(i) = 1;

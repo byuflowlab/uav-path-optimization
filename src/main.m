@@ -53,7 +53,7 @@ check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
 optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  1;         %if both are zero, then path length is optimized
+optimize_time =  0;         %if both are zero, then path length is optimized
 
 max_func_evals = 10000;
 max_iter = 50000;
@@ -79,10 +79,9 @@ cb = 1;                  %color brightness
 summer_c = 0;             % http://www.mathworks.com/help/matlab/ref/colormap.html#buq1hym
 cool_c = 0;
 copper_c = 0;
-parula_c = 1;
+parula_c = 0;
 winter_c = 0;
-green_fast = 0;
-color_bar = 1;
+color_bar = 0;
 %----------------------------------------%
 
 create_video = 1;          %saves the solutions of the multistart approach at each iteration

@@ -6,7 +6,7 @@
 
 clear; clc; close all;
 
-numlayouts = 10;
+numlayouts = 1000;
 
 feasiblepath = zeros(numlayouts,1);
 timeelapsed = zeros(numlayouts,1);
@@ -191,7 +191,7 @@ rng(z);
 n_obs = 35; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
-obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
+obs_rad = (3-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
 %-------------------------------------------%
 
 %------dynamic obstacle information---------%
