@@ -38,7 +38,7 @@ global initial; % to calculate d_l_min
 initial = 1;
 global uav_finite_size;
 global rho f W span eo;
-global summer_c cool_c copper_c parula_c winter_c;
+global summer_c cool_c copper_c parula_c winter_c blue_red blue_magenta_red;
 global obj_grad cons_grad ag acg;
 global max_speed min_speed D_eta_opt;
 global l_l_last;
@@ -53,7 +53,7 @@ check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
 optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  0;         %if both are zero, then path length is optimized
+optimize_time =  1;         %if both are zero, then path length is optimized
 
 max_func_evals = 10000;
 max_iter = 50000;
@@ -81,7 +81,9 @@ cool_c = 0;
 copper_c = 0;
 parula_c = 0;
 winter_c = 0;
-color_bar = 0;
+blue_red = 0;
+blue_magenta_red = 1;
+color_bar = 1;
 %----------------------------------------%
 
 create_video = 1;          %saves the solutions of the multistart approach at each iteration

@@ -6,7 +6,7 @@
 
 clear; clc; close all;
 
-numlayouts = 1000;
+numlayouts = 500;
 
 feasiblepath = zeros(numlayouts,1);
 timeelapsed = zeros(numlayouts,1);
@@ -65,8 +65,8 @@ uav_finite_size = 1;       %input whether want to include UAV size
 check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
-optimize_energy_use = 1;    %changes which objective function is used
-optimize_time =  0;         %if both are zero, then path length is optimized
+optimize_energy_use = 0;    %changes which objective function is used
+optimize_time =  1;         %if both are zero, then path length is optimized
 
 max_func_evals = 10000;
 max_iter = 50000;
@@ -297,13 +297,13 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
             
         end
         
-        %check curvature
-        c = check_curvature_new(i);
-        
-        %if constraints are violated, make infeasible
-        if any(c > 0)
-            %e(i,l) = -2;
-        end
+%         %check curvature
+%         c = check_curvature_new(i);
+%         
+%         %if constraints are violated, make infeasible
+%         if any(c > 0)
+%             %e(i,l) = -2;
+%         end
     end
     
     for i = 1 : ms_i %calculate how good solutions are
@@ -424,8 +424,8 @@ timeelapsed(z) = toc; % end optimization time
 
 Bez_points = [Bez_points; x_next(3:num_path*2,:)];
 
-% Final Plot
-%FinalPlot_robust_study(path_start, Path_bez, z, square_axes, totl, color_bar, speed_color...
+%Final Plot
+% FinalPlot_robust_study(path_start, Path_bez, z, square_axes, totl, color_bar, speed_color...
 %    , delta_t, d_speed_color, cb, cx, lr, x_sp);
 
 

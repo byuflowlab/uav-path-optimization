@@ -17,20 +17,20 @@ global uav_ws; %UAV wing span
 global initial; % to calculate d_l_min
 initial = 1;
 global uav_finite_size;
-global summer_c cool_c copper_c parula_c winter_c;
+global summer_c cool_c copper_c parula_c winter_c blue_red blue_magenta_red;
 
 
 %------------add last segments of path to total-----------%
 
 for j = 2 : num_path
     
-        for i = 1 : length(t)
-            path_mid(i,:) = (1-t(i))^2*x_next(2*j-2,:) + 2*(1-t(i))*t(i)*x_next(2*j-1,:)+t(i)^2*x_next(2*j,:);
-        end
-        
-        path_start = [path_start; path_mid(1,:)];
-        Path_bez = [Path_bez; path_mid];
-  
+    for i = 1 : length(t)
+        path_mid(i,:) = (1-t(i))^2*x_next(2*j-2,:) + 2*(1-t(i))*t(i)*x_next(2*j-1,:)+t(i)^2*x_next(2*j,:);
+    end
+    
+    path_start = [path_start; path_mid(1,:)];
+    Path_bez = [Path_bez; path_mid];
+    
 end
 
 
@@ -63,11 +63,40 @@ if color_bar == 1
         colormap copper
     elseif parula_c == 1
         colormap parula
-%         beta = -.7;
-%         brighten(beta)
-        
     elseif winter_c == 1
         colormap winter
+    elseif blue_red == 1
+        
+        % RGB - blue = slow, red = fast
+        mymap = zeros(64,3);
+        
+        mymap(:,1) = linspace(0,1,64);
+        mymap(:,2) = ones(64,1)*0;
+        mymap(:,3) = linspace(1,0,64);
+        
+        colormap(mymap)
+        
+    elseif blue_magenta_red == 1
+        
+        % RGB - blue = slow, red = fast
+        mymap = zeros(64,3);
+        
+        mymap(:,1) = linspace(0,2,64);
+        mymap(:,2) = ones(64,1)*0;
+        mymap(:,3) = linspace(2,0,64);
+        
+        for i = 1 : 64
+            if mymap(i,1) >= 1.0
+                mymap(i,1) = 1.0;
+            end
+            if mymap(i,3) >= 1.0
+                mymap(i,3) = 1.0;
+            end
+        end
+        
+        colormap(mymap)
+        
+        
     end
 end
 
