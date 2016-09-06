@@ -4,7 +4,7 @@ clear; clc; close all;
 %rgbplot(cool);
 %rgbplot(copper);
 %rgbplot(jet);
-rgbplot(parula);
+%rgbplot(parula);
 
 
 % http://www.mathworks.com/help/matlab/ref/colormap.html#buq1hym]

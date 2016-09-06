@@ -1,7 +1,7 @@
 function color = color_g(color_var)
 
 global green_fast;
-global summer_c cool_c copper_c parula_c winter_c blue_red blue_magenta_red;
+global summer_c cool_c copper_c parula_c winter_c blue_red blue_magenta_red green_purple blue_gray_red;
 
 color = zeros(length(color_var),1);
 
@@ -22,6 +22,10 @@ for i = 1 : length(color_var)
         color(i) = 0;
     elseif blue_magenta_red == 1
         color(i) = 0;
+        elseif green_purple == 1
+        color(i) = 1-color_var(i);    
+       elseif blue_gray_red == 1
+        color(i) = 1-color_var(i);
     end
     
     if color(i) >= 1.0

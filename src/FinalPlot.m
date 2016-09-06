@@ -17,7 +17,7 @@ global uav_ws; %UAV wing span
 global initial; % to calculate d_l_min
 initial = 1;
 global uav_finite_size;
-global summer_c cool_c copper_c parula_c winter_c blue_red blue_magenta_red;
+global summer_c cool_c copper_c parula_c winter_c blue_red blue_magenta_red green_purple blue_gray_red;
 
 
 %------------add last segments of path to total-----------%
@@ -95,7 +95,46 @@ if color_bar == 1
         end
         
         colormap(mymap)
+   
+         elseif green_purple == 1
         
+        % RGB - blue = slow, red = fast
+        mymap = zeros(64,3);
+        
+        mymap(:,1) = linspace(0,1,64);
+        mymap(:,2) = linspace(1,0,64);
+        mymap(:,3) = linspace(0,1,64);
+        
+        for i = 1 : 64
+            if mymap(i,1) >= 1.0
+                mymap(i,1) = 1.0;
+            end
+            if mymap(i,3) >= 1.0
+                mymap(i,3) = 1.0;
+            end
+        end
+        
+        colormap(mymap)
+        
+          elseif blue_gray_red == 1
+        
+        % RGB - blue = slow, red = fast
+        mymap = zeros(64,3);
+        
+        mymap(:,1) = linspace(0,1,64);
+        mymap(:,2) = linspace(1,0,64);
+        mymap(:,3) = linspace(1,0,64);
+        
+        for i = 1 : 64
+            if mymap(i,1) >= 1.0
+                mymap(i,1) = 1.0;
+            end
+            if mymap(i,3) >= 1.0
+                mymap(i,3) = 1.0;
+            end
+        end
+        
+        colormap(mymap)
         
     end
 end
