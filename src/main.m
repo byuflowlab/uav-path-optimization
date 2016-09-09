@@ -38,22 +38,23 @@ global initial; % to calculate d_l_min
 initial = 1;
 global uav_finite_size;
 global rho f W span eo;
-global summer_c cool_c copper_c parula_c winter_c blue_red blue_magenta_red green_purple blue_gray_red;
+global summer_c cool_c copper_c parula_c winter_c blue_red blue_magenta_red green_purple blue_gray_red shortened_viridis_c shortened_inferno_c;
+global shortened_parula_c;
 global obj_grad cons_grad ag acg;
 global max_speed min_speed D_eta_opt;
 global l_l_last;
 
 %------------Algorithm Options------------%
-Dynamic_Obstacles = 1;
+Dynamic_Obstacles = 0;
 
 num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
-ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
+ms_i = 5;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
 uav_finite_size = 1;       %input whether want to include UAV size
 check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
 optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  1;         %if both are zero, then path length is optimized
+optimize_time = 1;         %if both are zero, then path length is optimized
 
 max_func_evals = 10000;
 max_iter = 50000;
@@ -62,9 +63,14 @@ max_iter = 50000;
 totl = 1;             %turn off tick labels
 square_axes = 1;      %Square Axes
 radar = 0;            %Plots UAV's limit of sight
-linewidth = 3;        %Line width of traversed path segment
 show_sp = 0;          %Plots P1 of Bezier curve
-Show_Steps = 1;       %Needs to be turned on when Dynamic_Obstacles is turned on
+
+Show_Steps = 0;       %Needs to be turned on when Dynamic_Obstacles is turned on
+linewidth = 4;        %Line width of traversed path segment
+traversedwidth = 2;
+dashedwidth = 2;
+
+fwidth = 2;           %width of UAV path in FinalPlot.m
 show_end = 0;         %for calc_fig
 compare_num_path = 0;
 save_path = 0;        %save path data to use in compare
@@ -83,9 +89,12 @@ parula_c = 0;
 winter_c = 0;
 blue_red = 0;
 blue_magenta_red = 0;
-green_purple = 1;
+green_purple = 0;
 blue_gray_red = 0;
-color_bar = 0;
+shortened_parula_c = 1;
+shortened_viridis_c = 0;
+shortened_inferno_c = 0;
+color_bar = 1;
 %----------------------------------------%
 
 create_video = 1;          %saves the solutions of the multistart approach at each iteration
@@ -180,9 +189,9 @@ lr = 15; %landing zone radius; should be =< 15
 %rng(15); %40/4/3
 %rng(20); %40/4/3
 %rng(8);
-rng(8); % 50/4/3, used for path comparison
+rng(3); % 50/4/3, used for path comparison
 
-n_obs = 1; %number of static obstacles
+n_obs = 50; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
 rng(4); %for partially random obstacle size
 obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
@@ -384,7 +393,7 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
     if Show_Steps == 1
         
         plot_int_steps(l, square_axes, color_bar, totl, x_sp, cx, speed_color, path_part, path_planned, Path_bez, d_speed_color, cb...
-            ,linewidth, radar, show_sp, show_end, sds, lr);
+            ,linewidth, traversedwidth, dashedwidth, radar, show_sp, show_end, sds, lr);
     end
     
     %----------------------------------------------------------%
@@ -419,7 +428,7 @@ Bez_points = [Bez_points; x_next(3:num_path*2,:)];
 
 % Final Plot
 FinalPlot(path_start, Path_bez, l, square_axes, totl, color_bar, speed_color...
-    , delta_t, d_speed_color, cb, cx, lr, x_sp);
+    , delta_t, d_speed_color, cb, cx, lr, x_sp, fwidth);
 
 %compare paths created using various number of look ahead paths
 if compare_num_path == 1

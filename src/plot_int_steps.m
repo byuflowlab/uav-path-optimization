@@ -1,5 +1,5 @@
 function [] = plot_int_steps(l, square_axes, color_bar, totl, x_sp, cx, speed_color, path_part, path_planned, Path_bez, d_speed_color, cb...
-    ,linewidth, radar, show_sp, show_end, sds, lr)
+    ,linewidth, traversedwidth, dashedwidth, radar, show_sp, show_end, sds, lr)
 
 %-------global variables----------%
 global xf; %final position
@@ -19,7 +19,6 @@ initial = 1;
 global uav_finite_size;
 global delta_t
 global n_obsd obs_d_sp obs_d_v obs_d_s obs_d_cp;
-global summer_c cool_c copper_c parula_c winter_c blue_red blue_magenta_red green_purple blue_gray_red;
 
 %--------------------------------------- Plot -------------------------------------%
 
@@ -33,90 +32,9 @@ end
 
 if color_bar == 1
     
-    colorbar('southoutside','Ticks',[0,0.20,0.4,0.6,0.8,1],'TickLabels',{'V_{min}, 10 m/s','11 m/s','12 m/s','13 m/s','14 m/s','V_{max},15 m/s'},'fontsize',11);
+    make_color_bar();
     
-    if summer_c == 1
-        colormap summer
-    elseif cool_c == 1
-        colormap cool
-    elseif copper_c == 1
-        colormap copper
-    elseif parula_c == 1
-        colormap parula
-    elseif winter_c == 1
-        colormap winter
-    elseif blue_red == 1
-        
-        % RGB - blue = slow, red = fast
-        mymap = zeros(64,3);
-        
-        mymap(:,1) = linspace(0,1,64);
-        mymap(:,2) = ones(64,1)*0;
-        mymap(:,3) = linspace(1,0,64);
-        
-        colormap(mymap)
-        
-    elseif blue_magenta_red == 1
-        
-        % RGB - blue = slow, red = fast
-        mymap = zeros(64,3);
-        
-        mymap(:,1) = linspace(0,2,64);
-        mymap(:,2) = ones(64,1)*0;
-        mymap(:,3) = linspace(2,0,64);
-        
-        for i = 1 : 64
-            if mymap(i,1) >= 1.0
-                mymap(i,1) = 1.0;
-            end
-            if mymap(i,3) >= 1.0
-                mymap(i,3) = 1.0;
-            end
-        end
-        
-        colormap(mymap)
-        
-         elseif green_purple == 1
-        
-        % RGB - blue = slow, red = fast
-        mymap = zeros(64,3);
-        
-        mymap(:,1) = linspace(0,1,64);
-        mymap(:,2) = linspace(1,0,64);
-        mymap(:,3) = linspace(0,1,64);
-        
-        for i = 1 : 64
-            if mymap(i,1) >= 1.0
-                mymap(i,1) = 1.0;
-            end
-            if mymap(i,3) >= 1.0
-                mymap(i,3) = 1.0;
-            end
-        end
-        
-        colormap(mymap)
-        
-         elseif blue_gray_red == 1
-        
-        % RGB - blue = slow, red = fast
-        mymap = zeros(64,3);
-        
-        mymap(:,1) = linspace(0,1,64);
-        mymap(:,2) = linspace(1,0,64);
-        mymap(:,3) = linspace(1,0,64);
-        
-        for i = 1 : 64
-            if mymap(i,1) >= 1.0
-                mymap(i,1) = 1.0;
-            end
-            if mymap(i,3) >= 1.0
-                mymap(i,3) = 1.0;
-            end
-        end
-        
-        colormap(mymap)
-        
-    end
+    
 end
 
 if totl == 1
@@ -247,7 +165,7 @@ if speed_color == 1
             if i < length(t)*(l-1)
                 
                 %path already traveled
-                plot(bit(1:2,1,i),bit(1:2,2,i),'Color',[cb*(color_var_b(i)),cb*(1-color_var_b(i)),0]);
+                plot(bit(1:2,1,i),bit(1:2,2,i),'Color',[cb*(color_var_b(i)),cb*(1-color_var_b(i)),0],'LineWidth',traversedwidth);
             end
             
             if i >= length(t)*(l-1) && i < length(t)*l
@@ -259,7 +177,7 @@ if speed_color == 1
                 
                 %plot path that UAV has planned as dashed line
                 if num_path > 1
-                    plot(bit(1:2,1,i),bit(1:2,2,i),'--','Color',[cb*(color_var_b(i)),cb*(1-color_var_b(i)),0]);
+                    plot(bit(1:2,1,i),bit(1:2,2,i),'--','Color',[cb*(color_var_b(i)),cb*(1-color_var_b(i)),0],'LineWidth',dashedwidth);
                 end
                 
             end
@@ -270,14 +188,14 @@ if speed_color == 1
         
         for i = 1 : num_segments
             if i <= l-1
-                plot(segment(:,1,i),segment(:,2,i),'Color',[cb*c_r(i),cb*c_g(i),cb*c_b(i)]);
+                plot(segment(:,1,i),segment(:,2,i),'Color',[cb*c_r(i),cb*c_g(i),cb*c_b(i)],'LineWidth',traversedwidth);
             end
             
             if i > l-1 && i <= l
                 plot(segment(:,1,i),segment(:,2,i),'Color',[cb*c_r(i),cb*c_g(i),cb*c_b(i)],'LineWidth',linewidth);
                 
             else
-                plot(segment(:,1,i),segment(:,2,i),'--','Color',[cb*c_r(i),cb*c_g(i),cb*c_b(i)]);
+                plot(segment(:,1,i),segment(:,2,i),'--','Color',[cb*c_r(i),cb*c_g(i),cb*c_b(i)],'LineWidth',dashedwidth);
             end
         end
         
@@ -292,11 +210,11 @@ else
     end
     
     %plot path that UAV has just traversed as a bold line
-    plot(path_part(:,1),path_part(:,2),'Color',[0, cb, 0],'LineWidth',2);
+    plot(path_part(:,1),path_part(:,2),'Color',[0, cb, 0],'LineWidth',linewidth);
     
     %plot path that UAV has planned as dashed line
     if num_path > 1
-        plot(path_planned(:,1),path_planned(:,2),'--','Color',[0, 0.5, 0]);
+        plot(path_planned(:,1),path_planned(:,2),'--','Color',[0, 0.5, 0],'LineWidth',dashedwidth);
     end
     
 end
@@ -333,13 +251,15 @@ if uav_finite_size == 1
     y =  (uav_ws^2 - (x - path_part(1,1)).^2).^0.5 + path_part(1,2); %top part of circle
     y1 = -(uav_ws^2 - (x - path_part(1,1)).^2).^0.5 + path_part(1,2); %bottom part of circle
     
-%     txt1 = 'P_0';
-%     text(x(length(x)),y(length(y)),txt1,'fontsize',16);
+    if show_sp == 1
+        txt1 = 'P_0';
+        text(x(length(x)),y(length(y)),txt1,'fontsize',16);
+    end
     
     if speed_color == 1
         
-        plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'MarkerSize',1);
-        plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'MarkerSize',1);
+        plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'LineWidth',dashedwidth);
+        plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'LineWidth',dashedwidth);
         
     else
         
@@ -357,13 +277,13 @@ if uav_finite_size == 1
         
         if speed_color == 1
             
-            plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'MarkerSize',1);
-            plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'MarkerSize',1);
+            plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'LineWidth',dashedwidth);
+            plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'LineWidth',dashedwidth);
             
-%             txt1 = 'P_1';
-%             text(x(length(x)),y(length(y)),txt1,'fontsize',16);
+            txt1 = 'P_1';
+            text(x(length(x)),y(length(y)),txt1,'fontsize',16);
             
-            %plot dashed line between P0 and P1, P1 and P2 
+            %plot dashed line between P0 and P1, P1 and P2
             plot([x0(1) x_next(1,1)],[x0(2) x_next(1,2)],'--','Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
             plot([x_next(1,1) x_next(2,1)],[x_next(1,2) x_next(2,2)],'--','Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
         else
@@ -373,41 +293,41 @@ if uav_finite_size == 1
             
         end
         
-%         %plot where it is at start of next time step
-%         cs = 2*uav_ws/cx;
-%         x = x_next(3,1) - uav_ws : cs : x_next(3,1)+ uav_ws;
-%         y =  (uav_ws^2 - (x - x_next(3,1)).^2).^0.5 + x_next(3,2); %top part of circle
-%         y1 = -(uav_ws^2 - (x - x_next(3,1)).^2).^0.5 + x_next(3,2); %bottom part of circle
-%         
-%         if speed_color == 1
-%             
-%             plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
-%             plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
-%             
-%         else
-%             
-%             plot(x,y,'Color',[0, cb, 0]);
-%             plot(x,y1,'Color',[0, cb, 0]);
-%             
-%         end
-%         
-%         %plot where it is at start of time step
-%         cs = 2*uav_ws/cx;
-%         x = x_next(5,1) - uav_ws : cs : x_next(5,1)+ uav_ws;
-%         y =  (uav_ws^2 - (x - x_next(5,1)).^2).^0.5 + x_next(5,2); %top part of circle
-%         y1 = -(uav_ws^2 - (x - x_next(5,1)).^2).^0.5 + x_next(5,2); %bottom part of circle
-%         
-%         if speed_color == 1
-%             
-%             plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
-%             plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
-%             
-%         else
-%             
-%             plot(x,y,'Color',[0, cb, 0]);
-%             plot(x,y1,'Color',[0, cb, 0]);
-%             
-%         end
+        %         %plot where it is at start of next time step
+        %         cs = 2*uav_ws/cx;
+        %         x = x_next(3,1) - uav_ws : cs : x_next(3,1)+ uav_ws;
+        %         y =  (uav_ws^2 - (x - x_next(3,1)).^2).^0.5 + x_next(3,2); %top part of circle
+        %         y1 = -(uav_ws^2 - (x - x_next(3,1)).^2).^0.5 + x_next(3,2); %bottom part of circle
+        %
+        %         if speed_color == 1
+        %
+        %             plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+        %             plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+        %
+        %         else
+        %
+        %             plot(x,y,'Color',[0, cb, 0]);
+        %             plot(x,y1,'Color',[0, cb, 0]);
+        %
+        %         end
+        %
+        %         %plot where it is at start of time step
+        %         cs = 2*uav_ws/cx;
+        %         x = x_next(5,1) - uav_ws : cs : x_next(5,1)+ uav_ws;
+        %         y =  (uav_ws^2 - (x - x_next(5,1)).^2).^0.5 + x_next(5,2); %top part of circle
+        %         y1 = -(uav_ws^2 - (x - x_next(5,1)).^2).^0.5 + x_next(5,2); %bottom part of circle
+        %
+        %         if speed_color == 1
+        %
+        %             plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+        %             plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+        %
+        %         else
+        %
+        %             plot(x,y,'Color',[0, cb, 0]);
+        %             plot(x,y1,'Color',[0, cb, 0]);
+        %
+        %         end
         
     end
     
@@ -418,13 +338,15 @@ if uav_finite_size == 1
     y =  (uav_ws^2 - (x - path_part(length(t),1)).^2).^0.5 + path_part(length(t),2); %top part of circle
     y1 = -(uav_ws^2 - (x - path_part(length(t),1)).^2).^0.5 + path_part(length(t),2); %bottom part of circle
     
-%     txt1 = 'P_2';
-%     text(x(length(x)),y(length(y)),txt1,'fontsize',16);
+    if show_sp == 1
+        txt1 = 'P_2';
+        text(x(length(x)),y(length(y)),txt1,'fontsize',16);
+    end
     
     if speed_color == 1
         
-        plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'MarkerSize',1);
-        plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'MarkerSize',1);
+        plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'LineWidth',dashedwidth);
+        plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'LineWidth',dashedwidth);
         
     else
         
@@ -446,13 +368,13 @@ if uav_finite_size == 1
             
             if speed_color == 1
                 
-                plot(x,y,'Color',[cb*c_r(j+l), cb*c_g(j+l), cb*c_b(j+l)]);
-                plot(x,y1,'Color',[cb*c_r(j+l), cb*c_g(j+l), cb*c_b(j+l)]);
+                plot(x,y,'Color',[cb*c_r(j+l), cb*c_g(j+l), cb*c_b(j+l)],'LineWidth',dashedwidth);
+                plot(x,y1,'Color',[cb*c_r(j+l), cb*c_g(j+l), cb*c_b(j+l)],'LineWidth',dashedwidth);
                 
             else
                 
-                plot(x,y,'Color',[0, cb, 0]);
-                plot(x,y1,'Color',[0, cb, 0]);
+                plot(x,y,'Color',[0, cb, 0],'LineWidth',dashedwidth);
+                plot(x,y1,'Color',[0, cb, 0],'LineWidth',dashedwidth);
                 
             end
         end
@@ -510,8 +432,8 @@ if Dynamic_Obstacles == 1
             x = segment(i,1,l) - uav_ws : cs : segment(i,1,l)+ uav_ws;
             y =  (uav_ws^2 - (x - segment(i,1,l)).^2).^0.5 + segment(i,2,l); %top part of circle
             y1 = -(uav_ws^2 - (x - segment(i,1,l)).^2).^0.5 + segment(i,2,l); %bottom part of circle
-            plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
-            plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)]);
+            plot(x,y,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'LineWidth',dashedwidth);
+            plot(x,y1,'Color',[cb*c_r(l), cb*c_g(l), cb*c_b(l)],'LineWidth',dashedwidth);
             
             hold off
         end

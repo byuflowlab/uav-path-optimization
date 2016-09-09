@@ -1,5 +1,5 @@
 function [] = FinalPlot(path_start, Path_bez, l, square_axes, totl, color_bar...
-    , speed_color, delta_t, d_speed_color, cb, cx, lr, x_sp)
+    , speed_color, delta_t, d_speed_color, cb, cx, lr, x_sp, fwidth)
 
 %--------------------Final Plot-------------------------------%
 %-------global variables----------%
@@ -17,8 +17,6 @@ global uav_ws; %UAV wing span
 global initial; % to calculate d_l_min
 initial = 1;
 global uav_finite_size;
-global summer_c cool_c copper_c parula_c winter_c blue_red blue_magenta_red green_purple blue_gray_red;
-
 
 %------------add last segments of path to total-----------%
 
@@ -53,90 +51,8 @@ end
 
 if color_bar == 1
     
-    colorbar('southoutside','Ticks',[0,0.20,0.4,0.6,0.8,1],'TickLabels',{'V_{min}, 10 m/s','11 m/s','12 m/s','13 m/s','14 m/s','V_{max},15 m/s'},'fontsize',11);
+    make_color_bar();
     
-    if summer_c == 1
-        colormap summer
-    elseif cool_c == 1
-        colormap cool
-    elseif copper_c == 1
-        colormap copper
-    elseif parula_c == 1
-        colormap parula
-    elseif winter_c == 1
-        colormap winter
-    elseif blue_red == 1
-        
-        % RGB - blue = slow, red = fast
-        mymap = zeros(64,3);
-        
-        mymap(:,1) = linspace(0,1,64);
-        mymap(:,2) = ones(64,1)*0;
-        mymap(:,3) = linspace(1,0,64);
-        
-        colormap(mymap)
-        
-    elseif blue_magenta_red == 1
-        
-        % RGB - blue = slow, red = fast
-        mymap = zeros(64,3);
-        
-        mymap(:,1) = linspace(0,2,64);
-        mymap(:,2) = ones(64,1)*0;
-        mymap(:,3) = linspace(2,0,64);
-        
-        for i = 1 : 64
-            if mymap(i,1) >= 1.0
-                mymap(i,1) = 1.0;
-            end
-            if mymap(i,3) >= 1.0
-                mymap(i,3) = 1.0;
-            end
-        end
-        
-        colormap(mymap)
-   
-         elseif green_purple == 1
-        
-        % RGB - blue = slow, red = fast
-        mymap = zeros(64,3);
-        
-        mymap(:,1) = linspace(0,1,64);
-        mymap(:,2) = linspace(1,0,64);
-        mymap(:,3) = linspace(0,1,64);
-        
-        for i = 1 : 64
-            if mymap(i,1) >= 1.0
-                mymap(i,1) = 1.0;
-            end
-            if mymap(i,3) >= 1.0
-                mymap(i,3) = 1.0;
-            end
-        end
-        
-        colormap(mymap)
-        
-          elseif blue_gray_red == 1
-        
-        % RGB - blue = slow, red = fast
-        mymap = zeros(64,3);
-        
-        mymap(:,1) = linspace(0,1,64);
-        mymap(:,2) = linspace(1,0,64);
-        mymap(:,3) = linspace(1,0,64);
-        
-        for i = 1 : 64
-            if mymap(i,1) >= 1.0
-                mymap(i,1) = 1.0;
-            end
-            if mymap(i,3) >= 1.0
-                mymap(i,3) = 1.0;
-            end
-        end
-        
-        colormap(mymap)
-        
-    end
 end
 
 if speed_color == 1
@@ -230,7 +146,7 @@ if speed_color == 1
         
         for i = 1 : num_bits
             
-            plot(bit(1:2,1,i),bit(1:2,2,i),'Color',[cb*(color_var_b(i)),cb*(1-color_var_b(i)),0]);
+            plot(bit(1:2,1,i),bit(1:2,2,i),'Color',[cb*(color_var_b(i)),cb*(1-color_var_b(i)),0],'LineWidth', fwidth);
             
         end
         
@@ -238,7 +154,7 @@ if speed_color == 1
         
         for i = 1 : num_segments
             
-            plot(segment(:,1,i),segment(:,2,i),'Color',[cb*c_r(i), cb*c_g(i), cb*c_b(i)]);
+            plot(segment(:,1,i),segment(:,2,i),'Color',[cb*c_r(i), cb*c_g(i), cb*c_b(i)], 'LineWidth', fwidth);
             
         end
         
@@ -248,7 +164,7 @@ if speed_color == 1
     
 else
     
-    plot(Path_bez(:,1),Path_bez(:,2),'Color',[0, cb, 0]); %plots path of UAV
+    plot(Path_bez(:,1),Path_bez(:,2),'Color',[0, cb, 0],'LineWidth', fwidth); %plots path of UAV
     
 end
 
@@ -274,7 +190,7 @@ for i = 1 : length(t)
 end
 
 for i = 1 : num_segments
-    plot(finalsegment(:,1),finalsegment(:,2),'Color',[cb*c_r(length(c_r)), cb*c_g(length(c_r)), cb*c_b(length(c_r))]);
+    plot(finalsegment(:,1),finalsegment(:,2),'Color',[cb*c_r(length(c_r)), cb*c_g(length(c_r)), cb*c_b(length(c_r))],'LineWidth', fwidth);
 end
 % -------------------------------------------------------------------- %
 
@@ -284,7 +200,7 @@ if uav_finite_size == 0
         
         if speed_color == 1
             
-            plot(path_start(i,1),path_start(i,2),'o','Color',[cb*(color_var_b(i)),cb*(1-color_var_b(i)),0]);
+            plot(path_start(i,1),path_start(i,2),'o','Color',[cb*(color_var_b(i)),cb*(1-color_var_b(i)),0],'LineWidth', fwidth);
             
         else
             
@@ -305,8 +221,8 @@ if uav_finite_size == 1
             y =  (uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %top part of circle
             y1 = -(uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %bottom part of circle
             
-            plot(x,y,'Color',[cb*c_r(i), cb*c_g(i), cb*c_b(i)]);
-            plot(x,y1,'Color',[cb*c_r(i), cb*c_g(i), cb*c_b(i)]);
+            plot(x,y,'Color',[cb*c_r(i), cb*c_g(i), cb*c_b(i)],'LineWidth', fwidth);
+            plot(x,y1,'Color',[cb*c_r(i), cb*c_g(i), cb*c_b(i)],'LineWidth', fwidth);
             
         else
             cs = 2*uav_ws/cx;
@@ -314,8 +230,8 @@ if uav_finite_size == 1
             y =  (uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %top part of circle
             y1 = -(uav_ws^2 - (x - path_start(i,1)).^2).^0.5 + path_start(i,2); %bottom part of circle
             
-            plot(x,y,'Color',[0, cb, 0]);
-            plot(x,y1,'Color',[0, cb, 0]);
+            plot(x,y,'Color',[0, cb, 0],'LineWidth', fwidth);
+            plot(x,y1,'Color',[0, cb, 0],'LineWidth', fwidth);
         end
     end
 end
@@ -326,8 +242,8 @@ x = path_mid(length(t),1) - uav_ws : cs : path_mid(length(t),1) + uav_ws;
 y =  (uav_ws^2 - (x - path_mid(length(t),1)).^2).^0.5 + path_mid(length(t),2); %top part of circle
 y1 = -(uav_ws^2 - (x - path_mid(length(t),1)).^2).^0.5 + path_mid(length(t),2); %bottom part of circle
 
-plot(x,y,'Color',[cb*c_r(length(path_start)), cb*c_g(length(path_start)), cb*c_b(length(path_start))]);
-plot(x,y1,'Color',[cb*c_r(length(path_start)), cb*c_g(length(path_start)), cb*c_b(length(path_start))]);
+plot(x,y,'Color',[cb*c_r(length(path_start)), cb*c_g(length(path_start)), cb*c_b(length(path_start))],'LineWidth', fwidth);
+plot(x,y1,'Color',[cb*c_r(length(path_start)), cb*c_g(length(path_start)), cb*c_b(length(path_start))],'LineWidth', fwidth);
 
 %-----------------------------------------%
 
