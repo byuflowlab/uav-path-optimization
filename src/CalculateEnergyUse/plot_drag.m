@@ -48,7 +48,11 @@ end
 
 figure(1);
 hold on;
-plot(v,d_l);
+
+    set(gca,'FontSize',20)
+    set(gca,'FontSize',20)
+
+plot(v,d_l,'LineWidth',2);
 xlabel('UAV Velocity (m/s)','fontsize',18);
 ylabel('Drag (N)','fontsize',18);
 %title('Drag vs. UAV Speed');
@@ -83,7 +87,11 @@ end
 
 figure(2);
 hold on;
-plot(V,eta);
+
+    set(gca,'FontSize',20)
+    set(gca,'FontSize',20)
+
+plot(V,eta,'LineWidth',2);
 %title('Efficiency vs. UAV Speed');
 xlim([0 21]);
 ylim([0 1]);
@@ -102,6 +110,10 @@ end
 
 figure(3);
 hold on;
+
+    set(gca,'FontSize',20)
+    set(gca,'FontSize',20)
+
 plot(V,opt);
 ylim([0 20]);
 xlim([5 20]);

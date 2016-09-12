@@ -48,13 +48,13 @@ global l_l_last;
 Dynamic_Obstacles = 0;
 
 num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
-ms_i = 5;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
+ms_i = 3;                  %number of guesses for multi start (up to 8 for now, up to 3 for smart)
 uav_finite_size = 1;       %input whether want to include UAV size
 check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
-optimize_energy_use = 0;    %changes which objective function is used
-optimize_time = 1;         %if both are zero, then path length is optimized
+optimize_energy_use = 1;    %changes which objective function is used
+optimize_time = 0;         %if both are zero, then path length is optimized
 
 max_func_evals = 10000;
 max_iter = 50000;
@@ -65,7 +65,7 @@ square_axes = 1;      %Square Axes
 radar = 0;            %Plots UAV's limit of sight
 show_sp = 0;          %Plots P1 of Bezier curve
 
-Show_Steps = 0;       %Needs to be turned on when Dynamic_Obstacles is turned on
+Show_Steps = 1;       %Needs to be turned on when Dynamic_Obstacles is turned on
 linewidth = 4;        %Line width of traversed path segment
 traversedwidth = 2;
 dashedwidth = 2;
@@ -156,8 +156,8 @@ delta_t = t(2) - t(1);
 turn_r = 5; %turn radius, m
 
 %maximum/stall speed, m/s
-max_speed = 15;
-min_speed = 10;
+max_speed = 15.0;
+min_speed = 10.0;
 
 l_l_last = (min_speed)/(length(t));
 
@@ -189,7 +189,7 @@ lr = 15; %landing zone radius; should be =< 15
 %rng(15); %40/4/3
 %rng(20); %40/4/3
 %rng(8);
-rng(3); % 50/4/3, used for path comparison
+rng(7);
 
 n_obs = 50; %number of static obstacles
 obs = rand(n_obs,2)*90+5; %obstacle locations
