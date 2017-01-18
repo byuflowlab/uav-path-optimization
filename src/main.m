@@ -65,7 +65,7 @@ square_axes = 1;      %Square Axes
 radar = 0;            %Plots UAV's limit of sight
 show_sp = 0;          %Plots P1 of Bezier curve
 
-Show_Steps = 1;       %Needs to be turned on when Dynamic_Obstacles is turned on
+Show_Steps = 0;       %Needs to be turned on when Dynamic_Obstacles is turned on
 linewidth = 4;        %Line width of traversed path segment
 traversedwidth = 2;
 dashedwidth = 2;
@@ -94,7 +94,7 @@ blue_gray_red = 0;
 shortened_parula_c = 1;
 shortened_viridis_c = 0;
 shortened_inferno_c = 0;
-color_bar = 1;
+color_bar = 0;
 %----------------------------------------%
 
 create_video = 1;          %saves the solutions of the multistart approach at each iteration

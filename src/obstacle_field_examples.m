@@ -46,7 +46,7 @@
 % calc_fig.eps = %rng(3); %50/4/3 (figure(5))
 % fail.eps = %rng(8); %50/4/3; figure(2), ms_i = 1, ms_i = 5
 % pass.eps = %rng(8); %50/4/3; figure(2), ms_i = 1, ms_i = 5
-
+% compare.eps = % rng(7); % 50/4/3
 
 
 

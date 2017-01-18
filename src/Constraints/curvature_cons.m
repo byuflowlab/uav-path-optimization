@@ -44,7 +44,7 @@ for k = 1 : num_path
             
             if abs(m1-m2) < 0.001
                 
-                r = 1000000;
+                r = 1000000000;
                 
             end
             

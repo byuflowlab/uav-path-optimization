@@ -6,7 +6,7 @@
 
 clear; clc; close all;
 
-numlayouts = 500;
+numlayouts = 1000;
 
 feasiblepath = zeros(numlayouts,1);
 timeelapsed = zeros(numlayouts,1);
@@ -65,8 +65,8 @@ uav_finite_size = 1;       %input whether want to include UAV size
 check_viability = 1;       %Exits if unable to find viable path
 
 %Objective Function
-optimize_energy_use = 0;    %changes which objective function is used
-optimize_time =  1;         %if both are zero, then path length is optimized
+optimize_energy_use = 1;    %changes which objective function is used
+optimize_time =  0;         %if both are zero, then path length is optimized
 
 max_func_evals = 10000;
 max_iter = 50000;
