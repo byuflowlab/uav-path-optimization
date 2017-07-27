@@ -45,6 +45,10 @@ global max_speed min_speed D_eta_opt;
 global l_l_last;
 
 %------------Algorithm Options------------%
+
+% use genetic algorithm
+use_ga = 1;
+
 Dynamic_Obstacles = 0;
 
 num_path = 3;              %Receding Horizon Approach (any number really, but 3 is standard)
@@ -197,6 +201,9 @@ rng(4); %for partially random obstacle size
 obs_rad = (4-uav_ws) +  rand(n_obs,1)*3; %obstacle radius
 %-------------------------------------------%
 
+% calculate density
+obs_density = calc_obs_den(n_obs, obs, obs_rad, uav_ws);
+
 %------dynamic obstacle information---------%
 if Dynamic_Obstacles == 1
     
@@ -285,28 +292,37 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
         %choose objective function
         if optimize_energy_use == 1
             
-            
-            [x_new(:,:,i),~,e(i,l)] = fmincon(@opt_e, xi(:,:,i) , A, b, Aeq, beq, lb, ub, @cons,options);
+            if use_ga == 1
+                error('Not ready yet for ga');
+            else
+                [x_new(:,:,i),~,e(i,l)] = fmincon(@opt_e, xi(:,:,i) , A, b, Aeq, beq, lb, ub, @cons,options);
+            end
             
         elseif optimize_time == 1
             
-            
-            [x_new(:,:,i),~,e(i,l)] = fmincon(@opt_t, xi(:,:,i) , A, b, Aeq, beq, lb, ub, @cons,options);
+            if use_ga == 1
+                error('Not ready yet for ga');
+            else
+                [x_new(:,:,i),~,e(i,l)] = fmincon(@opt_t, xi(:,:,i) , A, b, Aeq, beq, lb, ub, @cons,options);
+            end
             
         else
             
-            
-            [x_new(:,:,i),~,e(i,l)] = fmincon(@opt_d, xi(:,:,i) , A, b, Aeq, beq, lb, ub, @cons,options);
+            if use_ga == 1
+                error('Not ready yet for ga');
+            else
+                [x_new(:,:,i),~,e(i,l)] = fmincon(@opt_d, xi(:,:,i) , A, b, Aeq, beq, lb, ub, @cons,options);
+            end
             
         end
         
-%         %check curvature
-%         c = check_curvature_new(i);
-%         
-%         %if constraints are violated, make infeasible
-%         if any(c > 0)
-%             e(i,l) = -2;
-%         end
+        %         %check curvature
+        %         c = check_curvature_new(i);
+        %
+        %         %if constraints are violated, make infeasible
+        %         if any(c > 0)
+        %             e(i,l) = -2;
+        %         end
     end
     
     for i = 1 : ms_i %calculate how good solutions are
@@ -372,14 +388,14 @@ while ( ( (x_next(2*num_path,1)-xf(1))^2 + (x_next(2*num_path,2)-xf(2))^2 )^0.5 
         
         path_part(i,:) = (1-t(i))^2*x0(1,:) + 2*(1-t(i))*t(i)*x_next(1,:)+t(i)^2*x_next(2,:);
         
-%         if i > 1
-%         norm(path_part(i,:)-path_part(i-1,:))
-%         end
+        %         if i > 1
+        %         norm(path_part(i,:)-path_part(i-1,:))
+        %         end
         
     end
     
     
-
+    
     
     %make the planned path of the UAV
     if num_path > 1
